@@ -1,4 +1,4 @@
-package ddtradeup.ddtradeup;
+package ddtradeup.ddtradeup2;
 
 import android.content.Context;
 

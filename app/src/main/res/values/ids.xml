@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="profileImageView" type="id" />
+    <item name="displayNameTextView" type="id" />
+    <item name="emailTextView" type="id" />
+    <item name="btnLogout" type="id" />
+    <item name="btnSwitchAccount" type="id" />
+</resources>

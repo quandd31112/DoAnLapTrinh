@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_home"
+        android:title="Trang chủ"
+        android:icon="@android:drawable/ic_menu_view" />
+
+    <item
+        android:id="@+id/menu_add"
+        android:title="Đăng bán"
+        android:icon="@android:drawable/ic_input_add" />
+
+    <item
+        android:id="@+id/menu_profile"
+        android:title="Hồ sơ"
+        android:icon="@android:drawable/ic_menu_myplaces" />
+</menu>

@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:508288130850:android:5933a0528887587deb8f7b",
+        "mobilesdk_app_id": "1:508288130850:android:40457c04f395766beb8f7b",
         "android_client_info": {
-          "package_name": "ddtradeup.ddtradeup"
+          "package_name": "ddtradeup.ddtradeup2"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "508288130850-tpkggn0rkrb67ulalsuf04p97ub6ns84.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ddtradeup.ddtradeup2",
+            "certificate_hash": "8568f2fc2b264105d9d0a08d2d41631e1896a27c"
+          }
+        },
         {
           "client_id": "508288130850-hfm45sl2lgso2koaie4tnsn23b9i66b2.apps.googleusercontent.com",
           "client_type": 3
