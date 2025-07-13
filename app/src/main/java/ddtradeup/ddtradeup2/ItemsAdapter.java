@@ -17,14 +17,14 @@ import java.util.List;
 
 public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHolder> {
 
-    private final Context context;          // giữ nguyên tham số context
+    private final Context context;
     private final List<ItemModel> itemList;
     private final boolean isEditable;
 
     public ItemsAdapter(Context context, List<ItemModel> itemList, boolean isEditable) {
-        this.context     = context;
-        this.itemList    = itemList;
-        this.isEditable  = isEditable;
+        this.context    = context;
+        this.itemList   = itemList;
+        this.isEditable = isEditable;
     }
 
     @NonNull
@@ -40,15 +40,22 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
         ItemModel item = itemList.get(position);
 
         holder.title.setText(item.getTitle());
-        String priceStr = item.getPrice();
-        int price = 0;
-        if (priceStr != null && !priceStr.isEmpty()) {
-            price = Integer.parseInt(priceStr);
-        }
-        holder.price.setText(String.format("₫%,d", price));
-// 💰 format VND
 
-        if (item.getDescription()!=null && !item.getDescription().isEmpty()) {
+        /* ---------- FIX NumberFormatException ---------- */
+        long priceLong = 0;
+        String priceStr = item.getPrice();
+        if (priceStr != null && !priceStr.isEmpty()) {
+            try {
+                // Loại bỏ ký tự không phải số (dấu phẩy, khoảng trắng…)
+                priceLong = Long.parseLong(priceStr.replaceAll("[^\\d]", ""));
+            } catch (NumberFormatException ignored) {
+                priceLong = 0;
+            }
+        }
+        holder.price.setText(String.format("₫%,d", priceLong));
+        /* ---------------------------------------------- */
+
+        if (item.getDescription() != null && !item.getDescription().isEmpty()) {
             holder.description.setVisibility(View.VISIBLE);
             holder.description.setText(item.getDescription());
         } else {
@@ -65,11 +72,12 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
             intent.putExtra("itemId", item.getId());
             context.startActivity(intent);
         });
-
     }
 
     @Override
-    public int getItemCount() { return itemList.size(); }
+    public int getItemCount() {
+        return itemList.size();
+    }
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         TextView title, description, price;

@@ -1,67 +1,100 @@
 package ddtradeup.ddtradeup2;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
+import android.view.*;
+import android.widget.*;
+import androidx.annotation.*;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-import com.google.firebase.firestore.FirebaseFirestore;
+public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TxVH> {
 
-import java.util.List;
+    private final List<TransactionModel> list;
+    private final boolean isSeller;                 // true nếu seller xem lịch sử
 
-public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
-
-    private List<TransactionModel> transactionList;
-
-    public TransactionAdapter(List<TransactionModel> transactionList) {
-        this.transactionList = transactionList;
+    public TransactionAdapter(List<TransactionModel> list, boolean isSeller) {
+        this.list = list;
+        this.isSeller = isSeller;
     }
 
-    @NonNull
+    @NonNull @Override
+    public TxVH onCreateViewHolder(@NonNull ViewGroup p, int v) {
+        View view = LayoutInflater.from(p.getContext())
+                .inflate(R.layout.item_transaction, p, false);
+        return new TxVH(view);
+    }
+
+    @Override public int getItemCount() { return list.size(); }
+
     @Override
-    public TransactionAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_transaction, parent, false);
-        return new ViewHolder(v);
+    public void onBindViewHolder(@NonNull TxVH h, int pos) {
+
+        TransactionModel tx = list.get(pos);
+
+        // Lấy thông tin sản phẩm cho UI
+        FirebaseFirestore.getInstance().collection("items")
+                .document(tx.getItemId()).get()
+                .addOnSuccessListener(doc -> {
+                    String title   = doc.getString("title");
+                    String image   = doc.getString("imageUrl");
+                    String price   = doc.getString("price");
+
+                    h.titlePrice.setText(title + " · ₫" + price);
+                    Glide.with(h.itemView.getContext())
+                            .load(image).placeholder(R.drawable.placeholder)
+                            .into(h.img);
+                });
+
+        // Ai là đối tác?
+        String userRoleText = isSeller
+                ? "Người mua: " + tx.getBuyerId()
+                : "Người bán: " + tx.getSellerId();
+        h.user.setText(userRoleText);
+
+        // Trạng thái + Ngày
+        String date = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                .format(new Date(tx.getTimestamp()));
+        h.statusDate.setText("Trạng thái: " + tx.getStatus() + " · " + date);
+
+        // Seller có quyền accept/decline nếu pending
+        if (isSeller && "pending".equals(tx.getStatus())) {
+            h.accept.setVisibility(View.VISIBLE);
+            h.decline.setVisibility(View.VISIBLE);
+
+            h.accept.setOnClickListener(v -> update("accepted", tx, h));
+            h.decline.setOnClickListener(v -> update("declined", tx, h));
+        } else {
+            h.accept.setVisibility(View.GONE);
+            h.decline.setVisibility(View.GONE);
+        }
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull TransactionAdapter.ViewHolder holder, int position) {
-        TransactionModel tx = transactionList.get(position);
-        holder.info.setText("Người mua: " + tx.getBuyerId() + "\nTrạng thái: " + tx.getStatus());
-
-        holder.accept.setOnClickListener(v -> updateStatus(tx, "accepted", v));
-        holder.decline.setOnClickListener(v -> updateStatus(tx, "declined", v));
-    }
-
-    private void updateStatus(TransactionModel tx, String status, View view) {
+    private void update(String newStatus, TransactionModel tx, TxVH h) {
         FirebaseFirestore.getInstance()
                 .collection("transactions")
                 .document(tx.getId())
-                .update("status", status)
-                .addOnSuccessListener(unused ->
-                        Toast.makeText(view.getContext(), "Đã cập nhật: " + status, Toast.LENGTH_SHORT).show());
+                .update("status", newStatus)
+                .addOnSuccessListener(v -> {
+                    tx.setStatus(newStatus);
+                    notifyItemChanged(h.getAdapterPosition());
+                    Toast.makeText(h.itemView.getContext(),
+                            "Đã cập nhật: " + newStatus, Toast.LENGTH_SHORT).show();
+                });
     }
 
-    @Override
-    public int getItemCount() {
-        return transactionList.size();
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView info;
+    static class TxVH extends RecyclerView.ViewHolder {
+        ImageView img; TextView titlePrice, user, statusDate;
         Button accept, decline;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            info = itemView.findViewById(R.id.transactionInfo);
-            accept = itemView.findViewById(R.id.acceptButton);
-            decline = itemView.findViewById(R.id.declineButton);
+        TxVH(@NonNull View v){
+            super(v);
+            img        = v.findViewById(R.id.txImage);
+            titlePrice = v.findViewById(R.id.txTitlePrice);
+            user       = v.findViewById(R.id.txUser);
+            statusDate = v.findViewById(R.id.txStatusDate);
+            accept     = v.findViewById(R.id.acceptButton);
+            decline    = v.findViewById(R.id.declineButton);
         }
     }
 }

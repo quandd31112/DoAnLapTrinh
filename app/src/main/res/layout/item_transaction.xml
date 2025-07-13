@@ -1,44 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/item_transaction"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:elevation="4dp"
-    android:padding="12dp">
+    android:radius="8dp">
 
     <LinearLayout
-        android:orientation="vertical"
+        android:orientation="horizontal"
+        android:padding="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/transactionInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Thông tin giao dịch"
-            android:textSize="16sp"
-            android:paddingBottom="8dp" />
+        <!-- ẢNH SẢN PHẨM -->
+        <ImageView
+            android:id="@+id/txImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder" />
 
         <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="end"
-            android:layout_marginTop="8dp">
+            android:layout_weight="1">
+
+            <!-- Tên sản phẩm + giá -->
+            <TextView
+                android:id="@+id/txTitlePrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="15sp"/>
+
+            <!-- Người mua hoặc người bán -->
+            <TextView
+                android:id="@+id/txUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"/>
+
+            <!-- Trạng thái + ngày -->
+            <TextView
+                android:id="@+id/txStatusDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"/>
+        </LinearLayout>
+
+        <!-- Nút Accept/Decline (chỉ seller thấy) -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
             <Button
                 android:id="@+id/acceptButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chấp nhận" />
+                android:text="✓"
+                android:backgroundTint="#4CAF50"
+                android:textColor="@android:color/white"/>
 
             <Button
                 android:id="@+id/declineButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Từ chối"
-                android:layout_marginStart="8dp" />
+                android:text="✕"
+                android:layout_marginTop="4dp"
+                android:backgroundTint="#F44336"
+                android:textColor="@android:color/white"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

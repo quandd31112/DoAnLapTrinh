@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,10 +19,10 @@ public class ListingsAdapter extends RecyclerView.Adapter<ListingsAdapter.ViewHo
 
     private final Context context;
     private final ArrayList<ItemModel> itemList;
-    private final boolean isEditable;     // true = hiển thị item của chủ sở hữu (Profile)
+    private final boolean isEditable;  // true = hiển thị item của chủ sở hữu (Profile)
 
     public ListingsAdapter(Context context, ArrayList<ItemModel> itemList, boolean isEditable) {
-        this.context  = context;
+        this.context = context;
         this.itemList = itemList;
         this.isEditable = isEditable;
     }
@@ -36,35 +37,51 @@ public class ListingsAdapter extends RecyclerView.Adapter<ListingsAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, int position) {
         ItemModel item = itemList.get(position);
 
-        holder.itemTitle.setText(item.getTitle());          // hiển thị tiêu đề
+        holder.itemTitle.setText(item.getTitle());
         holder.itemDescription.setText(item.getDescription());
 
-        // load ảnh – KHÔNG phụ thuộc isEditable
         Glide.with(context)
-                .load(item.getImageUrl())                      // phải là https:// → đã fix ở AddItemFragment
-                .placeholder(R.drawable.placeholder)           // ảnh tạm
-                .error(R.drawable.image_error)                 // ảnh khi lỗi
+                .load(item.getImageUrl())
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.image_error)
                 .into(holder.itemImage);
 
-        // mở chi tiết
+        // Xử lý click mở chi tiết sản phẩm
         holder.itemView.setOnClickListener(v -> {
             Intent i = new Intent(context, DetailActivity.class);
             i.putExtra("itemId", item.getId());
             context.startActivity(i);
         });
+
+        // Nếu có quyền chỉnh sửa (isEditable), hiển thị nút edit
+        if (isEditable) {
+            holder.editButton.setVisibility(View.VISIBLE);
+            holder.editButton.setOnClickListener(v -> {
+                Intent intent = new Intent(context, EditItemActivity.class);
+                intent.putExtra("itemId", item.getId());
+                context.startActivity(intent);
+            });
+        } else {
+            holder.editButton.setVisibility(View.GONE);
+        }
     }
 
-    @Override public int getItemCount() { return itemList.size(); }
+    @Override
+    public int getItemCount() {
+        return itemList.size();
+    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView itemImage;
-        TextView  itemTitle, itemDescription;
+        TextView itemTitle, itemDescription;
+        ImageButton editButton;
 
         ViewHolder(View itemView) {
             super(itemView);
-            itemImage       = itemView.findViewById(R.id.item_image);    // ← BỔ SUNG
-            itemTitle       = itemView.findViewById(R.id.item_title);
+            itemImage = itemView.findViewById(R.id.item_image);
+            itemTitle = itemView.findViewById(R.id.item_title);
             itemDescription = itemView.findViewById(R.id.item_description);
+            editButton = itemView.findViewById(R.id.edit_button); // Bắt buộc phải có ID này trong XML
         }
     }
 }

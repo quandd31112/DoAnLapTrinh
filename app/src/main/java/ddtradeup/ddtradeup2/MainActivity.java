@@ -1,13 +1,16 @@
 package ddtradeup.ddtradeup2;
 
 import android.os.Bundle;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
-import ddtradeup.ddtradeup2.fragments.HomeFragment;
 import ddtradeup.ddtradeup2.fragments.AddItemFragment;
+import ddtradeup.ddtradeup2.fragments.HomeFragment;
 import ddtradeup.ddtradeup2.fragments.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,7 +43,14 @@ public class MainActivity extends AppCompatActivity {
                 loadFragment(selected);
                 return true;
             }
+            if (!FirebaseUtil.isEmailVerified()) {
+                FirebaseAuth.getInstance().signOut();
+                Toast.makeText(this, "Vui lòng xác minh email trước khi truy cập ứng dụng.", Toast.LENGTH_LONG).show();
+                finish();
+            }
+
             return false;
+
         });
     }
 

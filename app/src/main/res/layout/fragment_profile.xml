@@ -1,65 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/white"
+    android:fillViewport="true">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:gravity="center_horizontal">
 
-        <!-- Avatar nếu muốn dùng -->
-        <!--
+        <!-- Avatar -->
         <ImageView
             android:id="@+id/profileImageView"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@drawable/default_profile"
             android:scaleType="centerCrop"
-            android:layout_gravity="center_horizontal" />
-        -->
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:elevation="4dp" />
 
+        <!-- Tên người dùng -->
         <TextView
             android:id="@+id/userNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tên người dùng"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:layout_gravity="center_horizontal" />
+            android:textColor="#212121"
+            android:layout_marginTop="4dp" />
 
+        <!-- Email -->
         <TextView
             android:id="@+id/userEmailTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Email"
-            android:paddingTop="4dp"
-            android:layout_gravity="center_horizontal" />
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginTop="2dp" />
 
-        <Button
+        <!-- Nút chỉnh sửa -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/editProfileButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Chỉnh sửa hồ sơ"
-            android:layout_marginTop="16dp" />
+            android:textAllCaps="false"
+            app:cornerRadius="12dp"
+            app:iconPadding="8dp"
+            app:iconTint="@null"
+            app:iconGravity="textStart"
+            android:textColor="@android:color/black"
+            app:backgroundTint="@android:color/white"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp" />
 
-        <Button
+        <!-- Nút lịch sử giao dịch -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/historyButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lịch sử mua hàng"
+            android:textAllCaps="false"
+            app:cornerRadius="12dp"
+            app:iconPadding="8dp"
+            app:iconTint="@null"
+            app:iconGravity="textStart"
+            android:textColor="@android:color/black"
+            app:backgroundTint="@android:color/white"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Nút đăng xuất -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Đăng xuất"
-            android:layout_marginBottom="8dp" />
+            android:textAllCaps="false"
+            android:textColor="@android:color/black"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@color/white"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="@android:color/white"
+            android:layout_marginBottom="16dp" />
 
+        <!-- Danh sách sản phẩm đã đăng -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:nestedScrollingEnabled="false" />
-
+            android:nestedScrollingEnabled="false"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="32dp"
+            android:clipToPadding="false" />
     </LinearLayout>
 </ScrollView>

@@ -1,25 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:windowBackground">
+    android:background="@android:color/background_light">
 
+    <!-- Toolbar hiện đại -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/purple_500"
         android:title="Giao dịch đã mua"
-        android:background="?attr/colorPrimary"
         android:titleTextColor="@android:color/white"
+        android:elevation="4dp"
         app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-        app:titleCentered="true" />
+        app:titleCentered="true"
+        app:popupTheme="@style/ThemeOverlay.Material3.Light"/>
 
+    <!-- RecyclerView đẹp hơn -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewBuyerTransactions"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="12dp"
-        android:clipToPadding="false" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"/>
 </LinearLayout>

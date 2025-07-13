@@ -1,56 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/item_listing"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    android:elevation="3dp"
-    android:radius="8dp">
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:padding="12dp">
 
-        <!-- product image full‑width -->
         <ImageView
             android:id="@+id/item_image"
-            android:layout_width="match_parent"
-            android:layout_height="140dp"
-            android:scaleType="centerCrop" />
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Ảnh sản phẩm"
+            />
 
-        <!-- info block -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="8dp">
+            android:layout_toEndOf="@id/item_image"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/item_title"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tiêu đề"
+                android:text="Tiêu đề sản phẩm"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:textColor="#000000" />
 
-            <TextView
-                android:id="@+id/item_price"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Giá"
-                android:textColor="#FF5722"
-                android:textStyle="bold"
-                android:paddingTop="2dp" />
-
-            <!-- mô tả 1 dòng -->
             <TextView
                 android:id="@+id/item_description"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:ellipsize="end"/>
+                android:text="Mô tả ngắn"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="4dp"/>
+            <TextView
+                android:id="@+id/item_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"/>
+
         </LinearLayout>
-    </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/edit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="Chỉnh sửa"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:visibility="gone"
+            app:tint="#000000" />
+    </RelativeLayout>
 </androidx.cardview.widget.CardView>

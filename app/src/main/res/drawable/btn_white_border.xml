@@ -1,0 +1,16 @@
+<!-- res/drawable/btn_white_border.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#DDDDDD" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" /> <!-- Màu nền trắng -->
+            <stroke android:width="2dp" android:color="#000000" /> <!-- Viền đen -->
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</selector>

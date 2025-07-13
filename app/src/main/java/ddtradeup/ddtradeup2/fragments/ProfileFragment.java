@@ -18,6 +18,7 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 
+import ddtradeup.ddtradeup2.BuyerTransactionsActivity;
 import ddtradeup.ddtradeup2.EditProfileActivity;
 import ddtradeup.ddtradeup2.ItemModel;
 import ddtradeup.ddtradeup2.ListingsAdapter;
@@ -36,11 +37,13 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
         userNameTextView = view.findViewById(R.id.userNameTextView);
         userEmailTextView = view.findViewById(R.id.userEmailTextView);
         recyclerView = view.findViewById(R.id.recyclerView);
         Button btnEditProfile = view.findViewById(R.id.editProfileButton);
         Button btnLogout = view.findViewById(R.id.logoutButton);
+        Button btnHistory = view.findViewById(R.id.historyButton); // ← Thêm nút này vào layout XML
 
         itemList = new ArrayList<>();
         adapter = new ListingsAdapter(getContext(), itemList, true);
@@ -50,8 +53,11 @@ public class ProfileFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        loadUserInfo();
-        loadUserItems(auth.getCurrentUser().getUid());
+        if (auth.getCurrentUser() != null) {
+            String uid = auth.getCurrentUser().getUid();
+            loadUserInfo(uid);
+            loadUserItems(uid);
+        }
 
         btnEditProfile.setOnClickListener(v -> {
             startActivity(new Intent(getContext(), EditProfileActivity.class));
@@ -64,25 +70,39 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
+        btnHistory.setOnClickListener(v -> {
+            startActivity(new Intent(getContext(), BuyerTransactionsActivity.class));
+        });
+
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadUserInfo(); // Tự động reload tên/email khi quay lại fragment
+        if (auth.getCurrentUser() != null) {
+            String uid = auth.getCurrentUser().getUid();
+            loadUserInfo(uid);
+            loadUserItems(uid);
+        }
     }
 
-    private void loadUserInfo() {
-        String uid = auth.getCurrentUser().getUid();
+    private void loadUserInfo(String uid) {
         db.collection("users").document(uid).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         String name = documentSnapshot.getString("name");
                         String email = documentSnapshot.getString("email");
-                        userNameTextView.setText(name);
-                        userEmailTextView.setText(email);
+                        userNameTextView.setText(name != null ? name : "Unknown");
+                        userEmailTextView.setText(email != null ? email : "Unknown");
+                    } else {
+                        userNameTextView.setText("Unknown");
+                        userEmailTextView.setText("Unknown");
                     }
+                })
+                .addOnFailureListener(e -> {
+                    userNameTextView.setText("Error");
+                    userEmailTextView.setText("Error");
                 });
     }
 

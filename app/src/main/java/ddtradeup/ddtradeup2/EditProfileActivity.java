@@ -123,17 +123,34 @@ public class EditProfileActivity extends AppCompatActivity {
         String uid = auth.getCurrentUser().getUid();
         DocumentReference docRef = firestore.collection("users").document(uid);
 
-        Map<String, Object> updates = new HashMap();
+        Map<String, Object> updates = new HashMap<>();
         updates.put("name", name);
         updates.put("email", email);
         updates.put("phone", phone);
         updates.put("avatar", avatarUrl);
 
-        docRef.update(updates)
-                .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Update failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        // FIX: Nếu document chưa tồn tại thì dùng set(), còn nếu có rồi thì update
+        docRef.get().addOnSuccessListener(snapshot -> {
+            if (snapshot.exists()) {
+                docRef.update(updates)
+                        .addOnSuccessListener(unused -> {
+                            Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Update failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        );
+            } else {
+                docRef.set(updates)
+                        .addOnSuccessListener(unused -> {
+                            Toast.makeText(this, "Profile created", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Save failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        );
+            }
+        });
     }
+
 }

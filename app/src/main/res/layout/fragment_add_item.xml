@@ -1,75 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/itemTitleEditText"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Tiêu đề sản phẩm"
-        android:inputType="text" />
+        android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/itemDescriptionEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Mô tả sản phẩm"
-        android:inputType="textMultiLine"
-        android:minLines="3" />
+        <!-- Title -->
+        <EditText
+            android:id="@+id/itemTitleEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tiêu đề sản phẩm"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/itemTagsEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Tag (cách nhau bởi dấu phẩy)"
-        android:inputType="text" />
+        <!-- Description -->
+        <EditText
+            android:id="@+id/itemDescriptionEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mô tả sản phẩm"
+            android:minLines="3"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/itemPriceEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Giá (VND)"
-        android:inputType="numberDecimal" />
+        <!-- Tags -->
+        <EditText
+            android:id="@+id/itemTagsEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tag (cách nhau bởi dấu phẩy)"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/latitudeEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Latitude"
-        android:inputType="numberDecimal" />
+        <!-- Price -->
+        <EditText
+            android:id="@+id/itemPriceEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Giá (VND)"
+            android:inputType="numberDecimal"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/longitudeEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Longitude"
-        android:inputType="numberDecimal" />
+        <!-- Latitude -->
+        <EditText
+            android:id="@+id/latitudeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Latitude"
+            android:inputType="numberDecimal"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
 
-    <ImageView
-        android:id="@+id/itemImageView"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="Ảnh sản phẩm" />
+        <!-- Longitude -->
+        <EditText
+            android:id="@+id/longitudeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Longitude"
+            android:inputType="numberDecimal"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
 
-    <Button
-        android:id="@+id/selectImageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Chọn ảnh" />
+        <!-- Image -->
+        <ImageView
+            android:id="@+id/itemImageView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Ảnh sản phẩm"
+            android:layout_marginBottom="12dp" />
 
-    <Button
-        android:id="@+id/previewButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Xem trước" />
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginBottom="8dp">
 
-    <Button
-        android:id="@+id/addItemButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Đăng sản phẩm" />
-</LinearLayout>
+            <Button
+                android:id="@+id/selectImageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chọn ảnh"
+                android:textColor="@color/black"/>
+
+            <Button
+                android:id="@+id/previewButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xem trước"
+                android:layout_marginStart="8dp"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/addItemButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đăng sản phẩm"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            />
+    </LinearLayout>
+</ScrollView>

@@ -1,25 +1,34 @@
 package ddtradeup.ddtradeup2;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.auth.api.signin.*;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.*;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText emailLogin, passwordLogin;
-    private Button loginButton, googleSignInButton;
+    private Button loginButton;
+    private Button googleSignInButton;
     private TextView toRegisterText, forgotPassword;
     private FirebaseAuth mAuth;
     private GoogleSignInClient googleSignInClient;
@@ -41,11 +50,12 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         loginButton.setEnabled(false); // Mặc định disabled
 
-        // ✅ TextWatcher kiểm tra điều kiện hợp lệ
+        // Kiểm tra input hợp lệ
         TextWatcher watcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 checkInputValidity();
             }
+
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
         };
@@ -60,8 +70,14 @@ public class LoginActivity extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(email, pass)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            finish();
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null && user.isEmailVerified()) {
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                finish();
+                            } else {
+                                mAuth.signOut();
+                                Toast.makeText(this, "Vui lòng xác minh email trước khi đăng nhập.", Toast.LENGTH_LONG).show();
+                            }
                         } else {
                             Toast.makeText(this, "Sai email hoặc mật khẩu", Toast.LENGTH_SHORT).show();
                         }
@@ -78,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // GOOGLE SIGN-IN
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))  // lấy từ google-services.json
+                .requestIdToken(getString(R.string.default_web_client_id)) // lấy từ google-services.json
                 .requestEmail()
                 .build();
 
@@ -90,7 +106,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // ✅ Kiểm tra định dạng input
     private void checkInputValidity() {
         String email = emailLogin.getText().toString().trim();
         String password = passwordLogin.getText().toString().trim();
@@ -109,6 +124,11 @@ public class LoginActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
+                if (account == null) {
+                    Toast.makeText(this, "Google Sign-In thất bại: account null", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
 
                 mAuth.signInWithCredential(credential)
@@ -122,7 +142,9 @@ public class LoginActivity extends AppCompatActivity {
                         });
 
             } catch (ApiException e) {
-                Toast.makeText(this, "Lỗi Google Sign-In: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                int statusCode = e.getStatusCode();
+                Toast.makeText(this, "Lỗi Google Sign-In, code: " + statusCode, Toast.LENGTH_LONG).show();
+                e.printStackTrace(); // in chi tiết logcat để debug
             }
         }
     }

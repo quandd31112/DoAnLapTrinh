@@ -25,27 +25,41 @@
         android:id="@+id/tvPrice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sản phẩm đã bán"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:paddingTop="4dp"/>
 
     <TextView
         android:id="@+id/tvMyOfferStatus"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        />
 
     <Button
         android:id="@+id/btnOffer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:text="Đề nghị giá" />
 
     <Button
         android:id="@+id/btnRate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:text="Đánh giá" />
     <Button
         android:id="@+id/btnBuyNow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:text="Mua ngay" />
 
     <androidx.recyclerview.widget.RecyclerView

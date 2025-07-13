@@ -118,7 +118,11 @@ public class HomeFragment extends Fragment {
                     for (com.google.firebase.firestore.QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         ItemModel item = doc.toObject(ItemModel.class);
                         item.setId(doc.getId());
-                        // Lọc theo khoảng cách nếu có vị trí và maxDistanceKm
+
+                        // ✅ Bỏ qua nếu đã bán
+                        if ("sold".equalsIgnoreCase(item.getStatus())) continue;
+
+                        // ✅ Lọc theo khoảng cách nếu có vị trí và maxDistanceKm
                         if (hasLocationPermission && maxDistanceKm != null && item.getLatitude() != null && item.getLongitude() != null) {
                             double distance = calculateDistance(userLatitude, userLongitude,
                                     item.getLatitude(), item.getLongitude());
@@ -151,6 +155,6 @@ public class HomeFragment extends Fragment {
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Khoảng cách tính bằng km
+        return R * c;
     }
 }

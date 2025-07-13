@@ -4,45 +4,43 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
+import com.google.firebase.firestore.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SellerTransactionsActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
+    private RecyclerView recycler;
     private TransactionAdapter adapter;
-    private List<TransactionModel> transactionList;
+    private final List<TransactionModel> list = new ArrayList<>();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_transactions);
+    @Override protected void onCreate(Bundle s) {
+        super.onCreate(s);
+        setContentView(R.layout.activity_seller_transactions);
 
-        recyclerView = findViewById(R.id.transactionRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        transactionList = new ArrayList<>();
-        adapter = new TransactionAdapter(transactionList);
-        recyclerView.setAdapter(adapter);
+        recycler = findViewById(R.id.sellerTransactionsRecyclerView);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new TransactionAdapter(list, true);       // true = seller
+        recycler.setAdapter(adapter);
 
-        loadTransactions();
+        loadTx();
     }
 
-    private void loadTransactions() {
-        String sellerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseFirestore.getInstance().collection("transactions")
-                .whereEqualTo("sellerId", sellerId)
+    private void loadTx(){
+        db.collection("transactions")
+                .whereEqualTo("sellerId", uid)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
-                .addOnSuccessListener(query -> {
-                    transactionList.clear();
-                    for (QueryDocumentSnapshot doc : query) {
-                        TransactionModel tx = doc.toObject(TransactionModel.class);
-                        tx.setId(doc.getId());
-                        transactionList.add(tx);
+                .addOnSuccessListener(snap -> {
+                    list.clear();
+                    for(DocumentSnapshot d : snap){
+                        TransactionModel tx = d.toObject(TransactionModel.class);
+                        if(tx==null) continue;
+                        tx.setId(d.getId());
+                        list.add(tx);
                     }
                     adapter.notifyDataSetChanged();
                 });

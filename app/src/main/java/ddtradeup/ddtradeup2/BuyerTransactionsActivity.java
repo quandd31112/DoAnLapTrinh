@@ -1,14 +1,13 @@
 package ddtradeup.ddtradeup2;
 
+import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,24 +28,32 @@ public class BuyerTransactionsActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         recyclerView = findViewById(R.id.recyclerViewBuyerTransactions);
         transactionList = new ArrayList<>();
-        adapter = new TransactionAdapter(transactionList);
+        adapter = new TransactionAdapter(transactionList, false); // false = buyer
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        loadBuyerTransactions();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            // Nếu chưa đăng nhập, quay về màn hình đăng nhập
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        loadBuyerTransactions(currentUser.getUid());
     }
 
-    private void loadBuyerTransactions() {
-        String currentUserId = mAuth.getCurrentUser().getUid();
-
+    private void loadBuyerTransactions(String userId) {
         db.collection("transactions")
-                .whereEqualTo("buyerId", currentUserId)
+                .whereEqualTo("buyerId", userId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     transactionList.clear();
                     for (QueryDocumentSnapshot doc : querySnapshot) {
-                        TransactionModel transaction = doc.toObject(TransactionModel.class);
-                        transactionList.add(transaction);
+                        TransactionModel tx = doc.toObject(TransactionModel.class);
+                        tx.setId(doc.getId()); // Gán ID document
+                        transactionList.add(tx);
                     }
                     adapter.notifyDataSetChanged();
                 });

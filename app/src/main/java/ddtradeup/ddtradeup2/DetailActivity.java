@@ -1,11 +1,13 @@
-// File: DetailActivity.java
 package ddtradeup.ddtradeup2;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,13 +15,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DetailActivity extends AppCompatActivity {
 
     private ImageView imgItem;
-    private TextView tvTitle, tvDescription, tvPrice, tvMyOfferStatus;
+    private TextView tvTitle, tvDescription, tvPrice, tvMyOfferStatus, tvStatus;
     private Button   btnOffer, btnRate, btnBuyNow;
     private RecyclerView recyclerOffers;
 
@@ -31,7 +34,10 @@ public class DetailActivity extends AppCompatActivity {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseAuth      mAuth = FirebaseAuth.getInstance();
 
-    @Override protected void onCreate(Bundle s) {
+    private ActivityResultLauncher<Intent> payLauncher;
+
+    @Override
+    protected void onCreate(Bundle s) {
         super.onCreate(s);
         setContentView(R.layout.activity_detail);
 
@@ -39,6 +45,7 @@ public class DetailActivity extends AppCompatActivity {
         tvTitle         = findViewById(R.id.tvTitle);
         tvDescription   = findViewById(R.id.tvDescription);
         tvPrice         = findViewById(R.id.tvPrice);
+        tvStatus        = findViewById(R.id.tvStatus);
         tvMyOfferStatus = findViewById(R.id.tvMyOfferStatus);
         btnOffer        = findViewById(R.id.btnOffer);
         btnRate         = findViewById(R.id.btnRate);
@@ -55,12 +62,29 @@ public class DetailActivity extends AppCompatActivity {
 
         btnOffer .setOnClickListener(v -> showOfferDialog());
         btnRate  .setOnClickListener(v -> showRatingDialog());
-        btnBuyNow.setOnClickListener(v -> handleBuyNow());
+
+        payLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                r -> {
+                    if (r.getResultCode() == RESULT_OK) {
+                        if (r.getData()!=null && r.getData().getBooleanExtra("paid",false))
+                            commitBuyNow();
+                    }
+                });
+
+        btnBuyNow.setOnClickListener(v -> {
+            if (item != null) {
+                Intent i = new Intent(this, PaymentActivity.class);
+                i.putExtra("itemId", item.getId());
+                i.putExtra("sellerId", item.getUserId());
+                i.putExtra("price", item.getPrice());
+                payLauncher.launch(i);
+            }
+        });
 
         loadItemDetail();
     }
 
-    /* --------- LOAD ITEM --------- */
     private void loadItemDetail() {
         db.collection("items").document(itemId).get().addOnSuccessListener(doc -> {
             item = doc.toObject(ItemModel.class);
@@ -71,7 +95,12 @@ public class DetailActivity extends AppCompatActivity {
 
             tvTitle.setText(item.getTitle());
             tvDescription.setText(item.getDescription());
-            tvPrice.setText(item.getPrice());
+            tvPrice.setText(String.format("\u20ab%,.0f", Double.parseDouble(item.getPrice())));
+
+            if ("sold".equalsIgnoreCase(item.getStatus()))
+                tvStatus.setVisibility(View.VISIBLE);
+            else
+                tvStatus.setVisibility(View.GONE);
 
             String url = (item.getImageUrls()!=null && !item.getImageUrls().isEmpty())
                     ? item.getImageUrls().get(0) : item.getImageUrl();
@@ -79,56 +108,58 @@ public class DetailActivity extends AppCompatActivity {
             Glide.with(this).load(url!=null?url:R.drawable.placeholder)
                     .placeholder(R.drawable.placeholder).into(imgItem);
 
-            if (currentUserId.equals(sellerId)) {      // người bán
+            if (currentUserId.equals(sellerId)) {
                 btnOffer.setVisibility(View.GONE);
                 btnRate .setVisibility(View.GONE);
                 btnBuyNow.setVisibility(View.GONE);
                 tvMyOfferStatus.setVisibility(View.GONE);
                 loadOffersForSeller();
-            } else {                                   // người mua
-                btnOffer .setVisibility(Boolean.TRUE.equals(item.isNegotiable())?View.VISIBLE:View.GONE);
-                btnBuyNow.setVisibility(item.getStatus()==null
-                        || item.getStatus().equalsIgnoreCase("available") ? View.VISIBLE : View.GONE);
+            } else {
+                btnOffer .setVisibility(Boolean.TRUE.equals(item.isNegotiable()) ? View.VISIBLE : View.GONE);
+                btnBuyNow.setVisibility(
+                        item.getStatus() == null || item.getStatus().equalsIgnoreCase("available")
+                                ? View.VISIBLE : View.GONE
+                );
                 recyclerOffers.setVisibility(View.GONE);
                 loadMyOffers();
             }
         });
     }
 
-    /* --------- BUY NOW --------- */
-    private void handleBuyNow() {
+    private void commitBuyNow() {
         HashMap<String,Object> tx = new HashMap<>();
         tx.put("itemId", itemId);
         tx.put("buyerId", currentUserId);
         tx.put("sellerId", sellerId);
         tx.put("status", "completed");
         tx.put("timestamp", FieldValue.serverTimestamp());
+        tx.put("price", item.getPrice());
 
         db.collection("transactions").add(tx).addOnSuccessListener(r ->
                 db.collection("items").document(itemId).update("status","sold")
                         .addOnSuccessListener(u -> {
-                            Toast.makeText(this,"Mua thành công",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this,"Purchase successful",Toast.LENGTH_SHORT).show();
                             btnBuyNow.setEnabled(false);
-                            btnBuyNow.setText("Đã mua");
+                            btnBuyNow.setText("Purchased");
+                            btnBuyNow.setVisibility(View.GONE);
                         })
         ).addOnFailureListener(e ->
-                Toast.makeText(this,"Lỗi mua: "+e.getMessage(),Toast.LENGTH_SHORT).show());
+                Toast.makeText(this,"Error: "+e.getMessage(),Toast.LENGTH_SHORT).show());
     }
 
-    /* --------- OFFER (BUYER) --------- */
     private void showOfferDialog() {
         EditText edt = new EditText(this);
         edt.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        edt.setHint("Nhập giá đề nghị");
+        edt.setHint("Enter your offer");
         new AlertDialog.Builder(this)
-                .setTitle("Đề nghị giá")
+                .setTitle("Submit Offer")
                 .setView(edt)
-                .setPositiveButton("Gửi",(d,w)->{
+                .setPositiveButton("Send",(d,w)->{
                     String v=edt.getText().toString();
-                    if(v.isEmpty()){ Toast.makeText(this,"Nhập giá!",Toast.LENGTH_SHORT).show(); return; }
+                    if(v.isEmpty()){ Toast.makeText(this,"Enter amount!",Toast.LENGTH_SHORT).show(); return; }
                     sendOffer(Double.parseDouble(v));
                 })
-                .setNegativeButton("Hủy",null).show();
+                .setNegativeButton("Cancel",null).show();
     }
 
     private void sendOffer(double price) {
@@ -137,11 +168,11 @@ public class DetailActivity extends AppCompatActivity {
                 System.currentTimeMillis());
         db.collection("offers").document(offerId).set(o)
                 .addOnSuccessListener(v -> {
-                    Toast.makeText(this,"Đã gửi đề nghị!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,"Offer sent!",Toast.LENGTH_SHORT).show();
                     loadMyOffers();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this,"Lỗi gửi: "+e.getMessage(),Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this,"Failed: "+e.getMessage(),Toast.LENGTH_SHORT).show());
     }
 
     private void loadMyOffers() {
@@ -160,18 +191,17 @@ public class DetailActivity extends AppCompatActivity {
                     }
                     if(last!=null){
                         tvMyOfferStatus.setVisibility(View.VISIBLE);
-                        tvMyOfferStatus.setText("Trạng thái offer: "+last.getStatus()+
-                                " (Giá: "+last.getPrice()+")");
+                        tvMyOfferStatus.setText("Offer: "+last.getStatus()+
+                                " (₫" + last.getPrice() + ")");
                         btnRate.setVisibility("accepted".equals(last.getStatus())?View.VISIBLE:View.GONE);
                     }else{
                         tvMyOfferStatus.setVisibility(View.GONE);
                         btnRate.setVisibility(View.GONE);
                     }
-                    btnOffer.setEnabled(!pending && item.isNegotiable());
+                    btnOffer.setEnabled(!pending && Boolean.TRUE.equals(item.isNegotiable()));
                 });
     }
 
-    /* --------- OFFER LIST (SELLER) --------- */
     private void loadOffersForSeller() {
         recyclerOffers.setVisibility(View.VISIBLE);
         db.collection("offers").whereEqualTo("itemId",itemId).get()
@@ -186,22 +216,21 @@ public class DetailActivity extends AppCompatActivity {
                 });
     }
 
-    /* --------- RATING --------- */
     private void showRatingDialog() {
         View v = LayoutInflater.from(this).inflate(R.layout.dialog_rating,null);
         RatingBar rb = v.findViewById(R.id.ratingBar);
 
         new AlertDialog.Builder(this)
-                .setTitle("Đánh giá người bán")
+                .setTitle("Rate Seller")
                 .setView(v)
-                .setPositiveButton("Gửi",(d,w)->{
+                .setPositiveButton("Submit",(d,w)->{
                     float rate = rb.getRating();
                     if(rate==0){
-                        Toast.makeText(this,"Vui lòng chọn sao!",Toast.LENGTH_SHORT).show(); return;
+                        Toast.makeText(this,"Please select stars!",Toast.LENGTH_SHORT).show(); return;
                     }
                     saveRating(rate);
                 })
-                .setNegativeButton("Hủy",null).show();
+                .setNegativeButton("Cancel",null).show();
     }
 
     private void saveRating(float rating) {
@@ -211,7 +240,7 @@ public class DetailActivity extends AppCompatActivity {
         r.put("rating", rating);
         r.put("timestamp", System.currentTimeMillis());
         db.collection("ratings").add(r).addOnSuccessListener(v -> {
-            Toast.makeText(this,"Đã gửi đánh giá "+rating+" sao",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Rated "+rating+" stars",Toast.LENGTH_SHORT).show();
             updateUserRating();
         });
     }

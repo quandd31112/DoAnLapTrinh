@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "508288130850-tpkggn0rkrb67ulalsuf04p97ub6ns84.apps.googleusercontent.com",
+          "client_id": "508288130850-vid54gd3ophto6ne12u87dtdck6optf6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ddtradeup.ddtradeup2",
-            "certificate_hash": "8568f2fc2b264105d9d0a08d2d41631e1896a27c"
+            "certificate_hash": "bd8c6b57222f6404b74472932d301bf27c213587"
           }
         },
         {
