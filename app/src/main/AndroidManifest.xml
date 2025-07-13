@@ -1,37 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.DDTradeUp">
-        <activity
-            android:name=".PreviewActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ForgotPasswordActivity"
-            android:exported="false" /> <!-- Launcher: LoginActivity -->
+        android:theme="@style/Theme.DDTradeUp"
+        android:name=".MyApplication"
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:targetApi="31">
         <activity
             android:name=".LoginActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.DDTradeUp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Các activity còn lại -->
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".AddItemActivity" />
-        <activity android:name=".DetailActivity" />
-        <activity android:name=".ProfileActivity" />
-        <activity android:name=".EditProfileActivity" />
-        <activity android:name=".MyListingsActivity" />
-        <activity android:name=".BuyerTransactionsActivity" />
-        <activity android:name=".SellerTransactionsActivity" />
+        </activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".PreviewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".MyListingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".DetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".PublicProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".EditItemActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".BuyerTransactionsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <activity
+            android:name=".SellerTransactionsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DDTradeUp.NoActionBar" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
+        <service
+            android:name="com.google.firebase.messaging.FirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
-
 </manifest>

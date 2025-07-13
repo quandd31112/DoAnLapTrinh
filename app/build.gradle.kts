@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -20,29 +18,27 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            val propsFile = file("signing.properties")
-            if (propsFile.exists()) {
-                val props = Properties().apply {
-                    load(propsFile.inputStream())
-                }
-                storeFile = file(props["STORE_FILE"] as String)
-                storePassword = props["STORE_PASSWORD"] as String
-                keyAlias = props["KEY_ALIAS"] as String
-                keyPassword = props["KEY_PASSWORD"] as String
-            } else {
-                throw GradleException("signing.properties not found")
-            }
+        // Dùng cấu hình debug mặc định thay vì tạo mới
+        getByName("debug") {
+            storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
         }
     }
 
     buildTypes {
-        getByName("debug") {
-            signingConfig = signingConfigs.getByName("release")
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = true
+            packaging {
+                jniLibs {
+                    keepDebugSymbols.add("**/*.so")
+                }
+            }
         }
-        getByName("release") {
+        release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -60,37 +56,34 @@ android {
 }
 
 dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
-    implementation("com.google.android.gms:play-services-auth:21.1.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity:18.0.0")
+    implementation("com.google.firebase:firebase-appcheck-debug:18.0.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.firebase:firebase-messaging:23.5.0")
+
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation(libs.firebase.storage)
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.auth)
-    implementation(libs.recyclerview)
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    implementation(libs.activity)
-    implementation(libs.constraintlayout)
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
-
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.activity:activity:1.9.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.navigation:navigation-fragment:2.7.7")
     implementation("androidx.navigation:navigation-ui:2.7.7")
 
     implementation("de.hdodenhof:circleimageview:3.1.0")
-
-    implementation("com.google.firebase:firebase-appcheck-playintegrity:17.0.0")
-    implementation("com.google.firebase:firebase-appcheck-debug:17.0.0")
-
     implementation("com.cloudinary:cloudinary-android:3.0.2")
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.navigation:navigation-fragment:2.7.7")
-    implementation("androidx.navigation:navigation-ui:2.7.7")
+
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

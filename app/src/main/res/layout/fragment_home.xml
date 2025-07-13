@@ -1,25 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_home"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FAF5F8">
+    android:padding="8dp">
 
-    <EditText
-        android:id="@+id/search_bar"
+    <!-- 🔍 Search bar in one row  -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_margin="16dp"
-        android:hint="Tìm kiếm sản phẩm..."
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:background="@color/white"
-        android:paddingStart="16dp"
-        android:textSize="18sp"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
+        <EditText
+            android:id="@+id/searchEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Tìm kiếm sản phẩm…"
+            android:imeOptions="actionSearch"
+            android:maxLines="1"/>
+
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tìm" />
+    </LinearLayout>
+
+    <!-- 🛒 Grid of items (2 columns) -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewHome"
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="4dp"/>
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp" />
 </LinearLayout>

@@ -1,73 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="24dp"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
+    <EditText
+        android:id="@+id/emailEditText"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:inputType="textEmailAddress" />
 
-        <TextView
-            android:text="TradeUp"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="32dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <EditText
+        android:id="@+id/passwordEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mật khẩu"
+        android:inputType="textPassword" />
 
-        <EditText
-            android:id="@+id/emailLogin"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp" />
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đăng nhập" />
 
-        <EditText
-            android:id="@+id/passwordLogin"
-            android:hint="Mật khẩu"
-            android:inputType="textPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp" />
+    <Button
+        android:id="@+id/googleSignInButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đăng nhập bằng Google" />
 
-        <Button
-            android:id="@+id/loginButton"
-            android:text="Đăng nhập"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="?attr/colorPrimary"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="12dp"/>
+    <Button
+        android:id="@+id/forgotPasswordButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Quên mật khẩu" />
 
-        <Button
-            android:id="@+id/googleSignInButton"
-            android:text="Đăng nhập bằng Google"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#DB4437"
-            android:textColor="#fff"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:id="@+id/forgotPassword"
-            android:text="Quên mật khẩu?"
-            android:textColor="@color/design_default_color_primary"
-            android:layout_gravity="end"
-            android:layout_marginTop="4dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/toRegisterText"
-            android:text="Chưa có tài khoản? Đăng ký"
-            android:textColor="@color/teal_700"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-</ScrollView>
+    <Button
+        android:id="@+id/registerButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đăng ký" />
+</LinearLayout>

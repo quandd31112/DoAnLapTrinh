@@ -1,187 +1,212 @@
 package ddtradeup.ddtradeup2.fragments;
 
-import ddtradeup.ddtradeup2.R;
-import ddtradeup.ddtradeup2.PreviewActivity;
-
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import com.bumptech.glide.Glide;
 import com.cloudinary.android.MediaManager;
-import com.cloudinary.android.callback.ErrorInfo;
-import com.cloudinary.android.callback.UploadCallback;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
-import ddtradeup.ddtradeup2.CloudinaryManager;
+import ddtradeup.ddtradeup2.R;
 
 public class AddItemFragment extends Fragment {
-
-    private static final int PICK_IMAGE_REQUEST = 1;
-
+    private EditText itemTitleEditText, itemDescriptionEditText, itemTagsEditText, itemPriceEditText, latitudeEditText, longitudeEditText;
     private ImageView itemImageView;
-    private EditText titleEditText, descriptionEditText, priceEditText, locationEditText;
-    private ProgressBar progressBar;
-    private Button previewButton;
-
-    private Uri imageUri;
-    private FirebaseAuth auth;
+    private Button addItemButton, selectImageButton, previewButton;
     private FirebaseFirestore db;
-
-    private String selectedCategory = "Chung"; // mặc định
-    private String selectedCondition = "Mới"; // mặc định
+    private FirebaseAuth auth;
+    private Uri imageUri;
+    private String imageUrl;
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private FusedLocationProviderClient locationClient;
+    private Double latitude;
+    private Double longitude;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_item, container, false);
-
-        CloudinaryManager.init(requireContext());
-
-        auth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-
+        itemTitleEditText = view.findViewById(R.id.itemTitleEditText);
+        itemDescriptionEditText = view.findViewById(R.id.itemDescriptionEditText);
+        itemTagsEditText = view.findViewById(R.id.itemTagsEditText);
+        itemPriceEditText = view.findViewById(R.id.itemPriceEditText);
         itemImageView = view.findViewById(R.id.itemImageView);
-        titleEditText = view.findViewById(R.id.titleEditText);
-        descriptionEditText = view.findViewById(R.id.descriptionEditText);
-        priceEditText = view.findViewById(R.id.priceEditText);
-        locationEditText = view.findViewById(R.id.locationEditText);
+        addItemButton = view.findViewById(R.id.addItemButton);
+        selectImageButton = view.findViewById(R.id.selectImageButton);
         previewButton = view.findViewById(R.id.previewButton);
+        latitudeEditText = view.findViewById(R.id.latitudeEditText);
+        longitudeEditText = view.findViewById(R.id.longitudeEditText);
+        db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+        locationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        Button chooseImageButton = view.findViewById(R.id.chooseImageButton);
-        Button uploadButton = view.findViewById(R.id.uploadButton);
-
-        progressBar = new ProgressBar(requireContext());
-        progressBar.setVisibility(View.GONE);
-
-        chooseImageButton.setOnClickListener(v -> openImagePicker());
-
-        uploadButton.setOnClickListener(v -> {
-            if (imageUri == null) {
-                Toast.makeText(getContext(), "Vui lòng chọn ảnh!", Toast.LENGTH_SHORT).show();
-            } else {
-                uploadImageToCloudinary();
+        imagePickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                imageUri = result.getData().getData();
+                itemImageView.setImageURI(imageUri);
             }
         });
 
-        // ✅ Preview bài đăng
-        previewButton.setOnClickListener(v -> {
-            if (imageUri == null) {
-                Toast.makeText(getContext(), "Vui lòng chọn ảnh!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Intent intent = new Intent(getActivity(), PreviewActivity.class);
-            intent.putExtra("title", titleEditText.getText().toString());
-            intent.putExtra("description", descriptionEditText.getText().toString());
-            intent.putExtra("price", priceEditText.getText().toString());
-            intent.putExtra("location", locationEditText.getText().toString());
-            intent.putExtra("category", selectedCategory);
-            intent.putExtra("condition", selectedCondition);
-            intent.putExtra("imageUri", imageUri.toString());
-            startActivity(intent);
-        });
-
+        selectImageButton.setOnClickListener(v -> selectImage());
+        addItemButton.setOnClickListener(v -> addItem());
+        previewButton.setOnClickListener(v -> showPreview());
         return view;
     }
 
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    private void selectImage() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        imagePickerLauncher.launch(intent);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            Glide.with(this).load(imageUri).into(itemImageView);
-        }
-    }
+    private void addItem() {
+        String title = itemTitleEditText.getText().toString().trim();
+        String description = itemDescriptionEditText.getText().toString().trim();
+        String tags = itemTagsEditText.getText().toString().trim();
+        String price = itemPriceEditText.getText().toString().trim();
 
-    private void uploadImageToCloudinary() {
-        progressBar.setVisibility(View.VISIBLE);
-        String publicId = "ddtradeup_items/" + UUID.randomUUID();
-
-        MediaManager.get().upload(imageUri)
-                .option("public_id", publicId)
-                .callback(new UploadCallback() {
-                    @Override public void onStart(String requestId) {}
-                    @Override public void onProgress(String requestId, long bytes, long totalBytes) {}
-                    @Override public void onSuccess(String requestId, Map resultData) {
-                        String imageUrl = (String) resultData.get("secure_url");
-                        saveToFirestore(imageUrl);
-                    }
-                    @Override public void onError(String requestId, ErrorInfo error) {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(getContext(), "Lỗi upload ảnh: " + error.getDescription(), Toast.LENGTH_SHORT).show();
-                    }
-                    @Override public void onReschedule(String requestId, ErrorInfo error) {}
-                }).dispatch();
-    }
-
-    private void saveToFirestore(String imageUrl) {
-        String title = titleEditText.getText().toString().trim();
-        String description = descriptionEditText.getText().toString().trim();
-        String priceStr = priceEditText.getText().toString().trim();
-
-        if (TextUtils.isEmpty(title) || TextUtils.isEmpty(description) || TextUtils.isEmpty(priceStr)) {
-            Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
-            return;
-        }
-
-        double price;
-        try {
-            price = Double.parseDouble(priceStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "Giá không hợp lệ!", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
+        if (title.isEmpty() || description.isEmpty() || tags.isEmpty() || price.isEmpty() || imageUri == null) {
+            Toast.makeText(requireContext(), "Điền đủ thông tin và chọn ảnh nha!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         String userId = auth.getCurrentUser().getUid();
+        addItemButton.setEnabled(false);
 
+        if (!latitudeEditText.getText().toString().isEmpty() && !longitudeEditText.getText().toString().isEmpty()) {
+            latitude = Double.parseDouble(latitudeEditText.getText().toString());
+            longitude = Double.parseDouble(longitudeEditText.getText().toString());
+            uploadImage(title, description, tags, price, userId);
+        } else if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(requireContext(), "Không có quyền vị trí, nhập tọa độ thủ công!", Toast.LENGTH_SHORT).show();
+            uploadImage(title, description, tags, price, userId);
+        } else {
+            locationClient.getLastLocation()
+                    .addOnSuccessListener(location -> {
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                        }
+                        uploadImage(title, description, tags, price, userId);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(requireContext(), "Lỗi lấy vị trí: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        uploadImage(title, description, tags, price, userId);
+                    });
+        }
+    }
+
+    private void showPreview() {
+        String title = itemTitleEditText.getText().toString().trim();
+        String description = itemDescriptionEditText.getText().toString().trim();
+        String tags = itemTagsEditText.getText().toString().trim();
+        String price = itemPriceEditText.getText().toString().trim();
+
+        if (title.isEmpty() || description.isEmpty() || tags.isEmpty() || price.isEmpty() || imageUri == null) {
+            Toast.makeText(requireContext(), "Điền đủ thông tin và chọn ảnh để xem trước nha!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(requireContext());
+        View previewView = LayoutInflater.from(requireContext()).inflate(R.layout.activity_preview, null);
+        TextView previewTitle = previewView.findViewById(R.id.previewTitle);
+        TextView previewDescription = previewView.findViewById(R.id.previewDescription);
+        TextView previewTags = previewView.findViewById(R.id.previewTags);
+        TextView previewPrice = previewView.findViewById(R.id.previewPrice);
+        ImageView previewImage = previewView.findViewById(R.id.previewImage);
+        previewTitle.setText(title);
+        previewDescription.setText(description);
+        previewTags.setText(tags);
+        previewPrice.setText(price);
+        previewImage.setImageURI(imageUri);
+        builder.setView(previewView);
+        builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void uploadImage(String title, String description, String tags, String price, String userId) {
+        MediaManager.get().upload(imageUri).unsigned("ddtradeup_preset").callback(new com.cloudinary.android.callback.UploadCallback() {
+            @Override
+            public void onStart(String requestId) {
+                Toast.makeText(requireContext(), "Đang upload ảnh...", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onProgress(String requestId, long bytes, long totalBytes) {
+            }
+
+            @Override
+            public void onSuccess(String requestId, Map resultData) {
+                imageUrl = (String) resultData.get("secure_url"); // luôn là https://
+                saveItemToFirestore(title, description, tags, price, userId, imageUrl);
+            }
+
+            @Override
+            public void onError(String requestId, com.cloudinary.android.callback.ErrorInfo error) {
+                Toast.makeText(requireContext(), "Lỗi upload ảnh: " + error.getDescription(), Toast.LENGTH_SHORT).show();
+                addItemButton.setEnabled(true);
+            }
+
+            @Override
+            public void onReschedule(String requestId, com.cloudinary.android.callback.ErrorInfo error) {
+            }
+        }).dispatch();
+    }
+
+    private void saveItemToFirestore(String title, String description, String tags, String price, String userId, String imageUrl) {
         Map<String, Object> item = new HashMap<>();
         item.put("title", title);
         item.put("description", description);
-        item.put("price", price);
-        item.put("imageUrl", imageUrl);
+        item.put("tags", Arrays.asList(tags.split(",")));
         item.put("userId", userId);
         item.put("timestamp", System.currentTimeMillis());
+        item.put("price", price);
+        item.put("imageUrl", imageUrl);
+        item.put("status", "Available"); // Thêm trạng thái mặc định
+        if (latitude != null && longitude != null) {
+            item.put("latitude", latitude);
+            item.put("longitude", longitude);
+        }
 
         db.collection("items")
                 .add(item)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(getContext(), "Đăng bài thành công!", Toast.LENGTH_SHORT).show();
-                    resetForm();
+                    Toast.makeText(requireContext(), "Đăng sản phẩm thành công!", Toast.LENGTH_SHORT).show();
+                    itemTitleEditText.setText("");
+                    itemDescriptionEditText.setText("");
+                    itemTagsEditText.setText("");
+                    itemPriceEditText.setText("");
+                    latitudeEditText.setText("");
+                    longitudeEditText.setText("");
+                    itemImageView.setImageResource(0);
+                    addItemButton.setEnabled(true);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Lỗi lưu dữ liệu: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                })
-                .addOnCompleteListener(task -> progressBar.setVisibility(View.GONE));
-    }
-
-    private void resetForm() {
-        titleEditText.setText("");
-        descriptionEditText.setText("");
-        priceEditText.setText("");
-        locationEditText.setText("");
-        itemImageView.setImageResource(android.R.color.darker_gray);
-        imageUri = null;
+                    Toast.makeText(requireContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    addItemButton.setEnabled(true);
+                });
     }
 }

@@ -1,66 +1,56 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <LinearLayout
+    <ImageView
+        android:id="@+id/imgItem"
+        android:layout_width="match_parent"
+        android:layout_height="200dp" />
+
+    <TextView
+        android:id="@+id/tvTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:textSize="20sp" />
 
-        <ImageView
-            android:id="@+id/imgItem"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/placeholder" />
+    <TextView
+        android:id="@+id/tvDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tiêu đề"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:layout_marginTop="8dp" />
+    <TextView
+        android:id="@+id/tvPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/tvDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mô tả"
-            android:layout_marginTop="4dp"/>
+    <TextView
+        android:id="@+id/tvMyOfferStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/tvPrice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="10000"
-            android:textColor="#E64A19"
-            android:textStyle="bold"
-            android:layout_marginTop="4dp" />
+    <Button
+        android:id="@+id/btnOffer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đề nghị giá" />
 
-        <TextView
-            android:id="@+id/tvMyOfferStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:layout_marginTop="8dp"
-            android:textColor="@color/teal_700"
-            android:visibility="gone" />
+    <Button
+        android:id="@+id/btnRate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đánh giá" />
+    <Button
+        android:id="@+id/btnBuyNow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mua ngay" />
 
-        <Button
-            android:id="@+id/btnOffer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Đề nghị giá"
-            android:layout_marginTop="12dp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerOffers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
-
-    </LinearLayout>
-</ScrollView>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerOffers"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>

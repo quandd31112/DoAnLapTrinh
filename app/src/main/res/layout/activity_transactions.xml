@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:background="#FAFAFA"
-    android:padding="16dp"
+    android:id="@+id/activity_transactions"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <TextView
-        android:id="@+id/transactionTitle"
+        android:id="@+id/transactionsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lịch sử giao dịch"
-        android:textSize="20sp"
+        android:text="Danh sách giao dịch"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#212121"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/transactionRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="12dp" />
+        android:layout_height="match_parent" />
 </LinearLayout>

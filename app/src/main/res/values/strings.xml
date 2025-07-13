@@ -3,7 +3,7 @@
     <string name="app_name">DDTradeUp</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="default_notification_channel_id">default_channel</string>
     <!-- Được thêm để dùng cho Google Sign-In -->
     <string name="default_web_client_id">508288130850-hfm45sl2lgso2koaie4tnsn23b9i66b2.apps.googleusercontent.com</string>
 </resources>

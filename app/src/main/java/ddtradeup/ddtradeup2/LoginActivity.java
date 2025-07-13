@@ -31,12 +31,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        emailLogin = findViewById(R.id.emailLogin);
-        passwordLogin = findViewById(R.id.passwordLogin);
+        emailLogin = findViewById(R.id.emailEditText);
+        passwordLogin = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         googleSignInButton = findViewById(R.id.googleSignInButton);
-        toRegisterText = findViewById(R.id.toRegisterText);
-        forgotPassword = findViewById(R.id.forgotPassword);
+        toRegisterText = findViewById(R.id.registerButton);
+        forgotPassword = findViewById(R.id.forgotPasswordButton);
 
         mAuth = FirebaseAuth.getInstance();
         loginButton.setEnabled(false); // Mặc định disabled

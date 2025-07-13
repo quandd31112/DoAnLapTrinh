@@ -1,75 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:gravity="center_horizontal">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profileImage"
+        <!-- Avatar nếu muốn dùng -->
+        <!--
+        <ImageView
+            android:id="@+id/profileImageView"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:src="@android:drawable/sym_def_app_icon"
-            android:layout_marginBottom="16dp" />
+            android:src="@drawable/default_profile"
+            android:scaleType="centerCrop"
+            android:layout_gravity="center_horizontal" />
+        -->
 
         <TextView
-            android:id="@+id/displayNameText"
+            android:id="@+id/userNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tên người dùng"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:layout_gravity="center"
-            android:layout_marginBottom="4dp" />
+            android:paddingTop="8dp"
+            android:layout_gravity="center_horizontal" />
 
         <TextView
-            android:id="@+id/emailText"
+            android:id="@+id/userEmailTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="email@example.com"
-            android:textSize="14sp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="4dp" />
+            android:text="Email"
+            android:paddingTop="4dp"
+            android:layout_gravity="center_horizontal" />
 
-        <TextView
-            android:id="@+id/bioText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Giới thiệu"
-            android:layout_gravity="center"
-            android:layout_marginBottom="4dp" />
-
-        <TextView
-            android:id="@+id/contactText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Liên hệ"
-            android:layout_gravity="center"
-            android:layout_marginBottom="24dp" />
-
-        <!-- Nút Đăng xuất -->
         <Button
-            android:id="@+id/btnLogout"
+            android:id="@+id/editProfileButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chỉnh sửa hồ sơ"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Đăng xuất"
-            android:backgroundTint="@color/purple_500"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="16dp" />
+            android:layout_marginBottom="8dp" />
 
-        <!-- Nút Chuyển tài khoản -->
-        <Button
-            android:id="@+id/btnSwitchAccount"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chuyển tài khoản"
-            android:backgroundTint="@color/purple_500"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="16dp"
+            android:nestedScrollingEnabled="false" />
+
     </LinearLayout>
 </ScrollView>

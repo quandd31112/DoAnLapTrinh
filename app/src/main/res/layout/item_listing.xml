@@ -1,58 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_listing"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:background="@android:color/white">
-
-    <ImageView
-        android:id="@+id/itemImage"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/placeholder" />
+    android:layout_margin="6dp"
+    android:elevation="3dp"
+    android:radius="8dp">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/itemTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tiêu đề"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:textColor="#29282B"/>
+        <!-- product image full‑width -->
+        <ImageView
+            android:id="@+id/item_image"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:scaleType="centerCrop" />
 
-        <TextView
-            android:id="@+id/itemDescription"
-            android:layout_width="wrap_content"
+        <!-- info block -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Mô tả"
-            android:textSize="16sp"
-            android:textColor="#616161"/>
+            android:orientation="vertical"
+            android:padding="8dp">
 
-        <TextView
-            android:id="@+id/itemPrice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Giá: 0 VNĐ"
-            android:textColor="#E64A19"
-            android:textStyle="bold"
-            android:textSize="18sp"/>
+            <TextView
+                android:id="@+id/item_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tiêu đề"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/item_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Giá"
+                android:textColor="#FF5722"
+                android:textStyle="bold"
+                android:paddingTop="2dp" />
+
+            <!-- mô tả 1 dòng -->
+            <TextView
+                android:id="@+id/item_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+        </LinearLayout>
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/btnDelete"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@android:drawable/ic_menu_delete"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Xóa bài đăng"
-        android:visibility="gone"/>
-</LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chọn số sao để đánh giá"
+        android:textSize="16sp" />
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="1"
+        android:rating="0"
+        android:isIndicator="false"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center"/>
+
+</LinearLayout>

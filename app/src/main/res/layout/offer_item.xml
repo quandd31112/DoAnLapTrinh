@@ -1,29 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:padding="8dp"
-    android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:background="@drawable/bg_offer">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <TextView android:id="@+id/offerPrice"
-        android:text="Giá đề nghị"
-        android:textSize="16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    <TextView android:id="@+id/offerStatus"
-        android:text="Trạng thái"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/offerPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-    <LinearLayout android:orientation="horizontal"
+    <TextView
+        android:id="@+id/offerStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btnAccept"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <Button android:id="@+id/btnAccept"
-            android:text="Chấp nhận"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <Button android:id="@+id/btnReject"
-            android:text="Từ chối"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:text="Chấp nhận" />
+
+    <Button
+        android:id="@+id/btnReject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Từ chối" />
+
+    <Button
+        android:id="@+id/btnCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đối đề nghị" />
 </LinearLayout>

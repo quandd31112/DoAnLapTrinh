@@ -24,9 +24,12 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    private EditText editName, editEmail, editPhone;
+    private EditText editName;
+    private EditText editEmail;
+    private EditText editPhone;
     private ImageView imageAvatar;
     private Button buttonSave;
+    private Button deleteAccountButton;
 
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
@@ -34,7 +37,6 @@ public class EditProfileActivity extends AppCompatActivity {
     private Uri imageUri;
     private String avatarUrl;
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
@@ -43,7 +45,8 @@ public class EditProfileActivity extends AppCompatActivity {
         editEmail = findViewById(R.id.editEmail);
         editPhone = findViewById(R.id.editPhone);
         imageAvatar = findViewById(R.id.imageAvatar);
-        buttonSave = findViewById(R.id.buttonSave);
+        buttonSave = findViewById(R.id.btnSaveProfile);
+        deleteAccountButton = findViewById(R.id.btnDelete);
 
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -53,6 +56,25 @@ public class EditProfileActivity extends AppCompatActivity {
         imageAvatar.setOnClickListener(v -> openImagePicker());
 
         buttonSave.setOnClickListener(v -> saveProfile());
+
+        deleteAccountButton.setOnClickListener(v -> {
+            String uid = auth.getCurrentUser().getUid();
+
+            auth.getCurrentUser().delete()
+                    .addOnSuccessListener(aVoid -> {
+                        firestore.collection("users").document(uid).delete()
+                                .addOnSuccessListener(aVoid1 -> {
+                                    Toast.makeText(this, "Tài khoản đã bị xóa!", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(this, LoginActivity.class));
+                                    finish();
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this, "Lỗi xóa dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Lỗi xóa tài khoản: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        });
+
     }
 
     private void loadUserData() {
@@ -78,14 +100,13 @@ public class EditProfileActivity extends AppCompatActivity {
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
             imageAvatar.setImageURI(imageUri);
-            avatarUrl = imageUri.toString(); // Tạm thời dùng URI local, nếu dùng Firebase Storage thì upload và lấy URL sau
+            avatarUrl = imageUri.toString();
         }
     }
 
@@ -102,7 +123,7 @@ public class EditProfileActivity extends AppCompatActivity {
         String uid = auth.getCurrentUser().getUid();
         DocumentReference docRef = firestore.collection("users").document(uid);
 
-        Map<String, Object> updates = new HashMap<>();
+        Map<String, Object> updates = new HashMap();
         updates.put("name", name);
         updates.put("email", email);
         updates.put("phone", phone);
