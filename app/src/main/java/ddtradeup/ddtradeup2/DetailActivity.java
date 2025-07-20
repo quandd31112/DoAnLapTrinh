@@ -23,7 +23,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private ImageView imgItem;
     private TextView tvTitle, tvDescription, tvPrice, tvMyOfferStatus, tvStatus;
-    private Button   btnOffer, btnRate, btnBuyNow;
+    private Button   btnOffer, btnRate, btnBuyNow, btnEditItem;
     private RecyclerView recyclerOffers;
 
     private ItemModel item;
@@ -50,6 +50,7 @@ public class DetailActivity extends AppCompatActivity {
         btnOffer        = findViewById(R.id.btnOffer);
         btnRate         = findViewById(R.id.btnRate);
         btnBuyNow       = findViewById(R.id.btnBuyNow);
+        btnEditItem     = findViewById(R.id.btnEditItem);
         recyclerOffers  = findViewById(R.id.recyclerOffers);
 
         currentUserId = mAuth.getCurrentUser().getUid();
@@ -113,6 +114,12 @@ public class DetailActivity extends AppCompatActivity {
                 btnRate .setVisibility(View.GONE);
                 btnBuyNow.setVisibility(View.GONE);
                 tvMyOfferStatus.setVisibility(View.GONE);
+                btnEditItem.setVisibility(View.VISIBLE);
+                btnEditItem.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, EditItemActivity.class);
+                    intent.putExtra("itemId", item.getId());
+                    startActivity(intent);
+                });
                 loadOffersForSeller();
             } else {
                 btnOffer .setVisibility(Boolean.TRUE.equals(item.isNegotiable()) ? View.VISIBLE : View.GONE);

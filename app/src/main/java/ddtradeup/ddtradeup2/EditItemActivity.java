@@ -105,6 +105,7 @@ public class EditItemActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedStatus = parent.getItemAtPosition(position).toString();
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
@@ -117,14 +118,33 @@ public class EditItemActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         titleEditText.setText(documentSnapshot.getString("title"));
                         descriptionEditText.setText(documentSnapshot.getString("description"));
-                        priceEditText.setText(String.valueOf(documentSnapshot.getDouble("price")));
+
+                        // FIX CRASH: handle price safely
+                        Object priceObj = documentSnapshot.get("price");
+                        double price = 0;
+                        if (priceObj instanceof Number) {
+                            price = ((Number) priceObj).doubleValue();
+                        } else if (priceObj instanceof String) {
+                            try {
+                                price = Double.parseDouble((String) priceObj);
+                            } catch (NumberFormatException e) {
+                                price = 0;
+                            }
+                        }
+                        priceEditText.setText(String.valueOf(price));
+
                         locationEditText.setText(documentSnapshot.getString("location"));
                         selectedCategory = documentSnapshot.getString("category");
                         selectedCondition = documentSnapshot.getString("condition");
                         selectedStatus = documentSnapshot.getString("status");
-                        tagsEditText.setText(String.join(",", (ArrayList<String>) documentSnapshot.get("tags")));
+
+                        Object tagsObj = documentSnapshot.get("tags");
+                        if (tagsObj instanceof ArrayList) {
+                            tagsEditText.setText(TextUtils.join(",", (ArrayList<?>) tagsObj));
+                        }
+
                         imageUrls = (ArrayList<String>) documentSnapshot.get("imageUrls");
-                        if (!imageUrls.isEmpty()) {
+                        if (imageUrls != null && !imageUrls.isEmpty()) {
                             Glide.with(this).load(imageUrls.get(0)).into(itemImageView);
                         }
                     }
@@ -163,10 +183,12 @@ public class EditItemActivity extends AppCompatActivity {
                                 saveToFirestore();
                             }
                         }
+
                         @Override public void onError(String requestId, ErrorInfo error) {
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(EditItemActivity.this, "Lỗi upload ảnh: " + error.getDescription(), Toast.LENGTH_SHORT).show();
                         }
+
                         @Override public void onReschedule(String requestId, ErrorInfo error) {}
                     }).dispatch();
         }

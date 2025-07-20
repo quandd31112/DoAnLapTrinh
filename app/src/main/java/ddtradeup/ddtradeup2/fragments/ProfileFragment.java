@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,59 +20,62 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 
 import ddtradeup.ddtradeup2.BuyerTransactionsActivity;
+import ddtradeup.ddtradeup2.ChatActivity;
 import ddtradeup.ddtradeup2.EditProfileActivity;
 import ddtradeup.ddtradeup2.ItemModel;
-import ddtradeup.ddtradeup2.ListingsAdapter;
+import ddtradeup.ddtradeup2.ItemsAdapter;          // << dùng adapter mới
 import ddtradeup.ddtradeup2.LoginActivity;
 import ddtradeup.ddtradeup2.R;
 
 public class ProfileFragment extends Fragment {
-    private TextView userNameTextView;
-    private TextView userEmailTextView;
+
+    private TextView userNameTextView, userEmailTextView;
     private RecyclerView recyclerView;
-    private ListingsAdapter adapter;
-    private ArrayList<ItemModel> itemList;
+    private ItemsAdapter adapter;
+    private final ArrayList<ItemModel> itemList = new ArrayList<>();
+
     private FirebaseFirestore db;
     private FirebaseAuth auth;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        userNameTextView = view.findViewById(R.id.userNameTextView);
+        // View binding
+        userNameTextView  = view.findViewById(R.id.userNameTextView);
         userEmailTextView = view.findViewById(R.id.userEmailTextView);
-        recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView      = view.findViewById(R.id.recyclerView);
+
         Button btnEditProfile = view.findViewById(R.id.editProfileButton);
-        Button btnLogout = view.findViewById(R.id.logoutButton);
-        Button btnHistory = view.findViewById(R.id.historyButton); // ← Thêm nút này vào layout XML
+        Button btnHistory     = view.findViewById(R.id.historyButton);
+        Button btnLogout      = view.findViewById(R.id.logoutButton);
+        Button btnChatList    = view.findViewById(R.id.chatButton);   // << mới
 
-        itemList = new ArrayList<>();
-        adapter = new ListingsAdapter(getContext(), itemList, true);
-        recyclerView.setAdapter(adapter);
+        // Adapter hiển thị “Sửa” vì đây là item của chính user (isEditable = true)
+        adapter = new ItemsAdapter(requireContext(), itemList, /*isEditable*/ true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
 
-        db = FirebaseFirestore.getInstance();
+        db   = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        if (auth.getCurrentUser() != null) {
-            String uid = auth.getCurrentUser().getUid();
-            loadUserInfo(uid);
-            loadUserItems(uid);
-        }
+        btnEditProfile.setOnClickListener(v ->
+                startActivity(new Intent(getContext(), EditProfileActivity.class)));
 
-        btnEditProfile.setOnClickListener(v -> {
-            startActivity(new Intent(getContext(), EditProfileActivity.class));
-        });
+        btnHistory.setOnClickListener(v ->
+                startActivity(new Intent(getContext(), BuyerTransactionsActivity.class)));
+
+        btnChatList.setOnClickListener(v ->
+                startActivity(new Intent(getContext(), ChatActivity.class)));   // mở màn chat chính
 
         btnLogout.setOnClickListener(v -> {
             auth.signOut();
-            Intent intent = new Intent(getContext(), LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        });
-
-        btnHistory.setOnClickListener(v -> {
-            startActivity(new Intent(getContext(), BuyerTransactionsActivity.class));
+            Intent i = new Intent(getContext(), LoginActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(i);
         });
 
         return view;
@@ -87,22 +91,13 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /* ---------------- helper ---------------- */
+
     private void loadUserInfo(String uid) {
         db.collection("users").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String name = documentSnapshot.getString("name");
-                        String email = documentSnapshot.getString("email");
-                        userNameTextView.setText(name != null ? name : "Unknown");
-                        userEmailTextView.setText(email != null ? email : "Unknown");
-                    } else {
-                        userNameTextView.setText("Unknown");
-                        userEmailTextView.setText("Unknown");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    userNameTextView.setText("Error");
-                    userEmailTextView.setText("Error");
+                .addOnSuccessListener(doc -> {
+                    userNameTextView.setText(doc.getString("name")  != null ? doc.getString("name")  : "Unknown");
+                    userEmailTextView.setText(doc.getString("email") != null ? doc.getString("email") : "Unknown");
                 });
     }
 
@@ -111,13 +106,13 @@ public class ProfileFragment extends Fragment {
                 .whereEqualTo("userId", uid)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addOnSuccessListener(qs -> {
                     itemList.clear();
-                    for (com.google.firebase.firestore.QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        ItemModel item = doc.toObject(ItemModel.class);
-                        item.setId(doc.getId());
+                    qs.forEach(d -> {
+                        ItemModel item = d.toObject(ItemModel.class);
+                        item.setId(d.getId());
                         itemList.add(item);
-                    }
+                    });
                     adapter.notifyDataSetChanged();
                 });
     }

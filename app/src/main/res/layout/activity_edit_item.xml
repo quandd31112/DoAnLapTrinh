@@ -16,7 +16,9 @@
         android:id="@+id/chooseImageButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Chọn ảnh (tối đa 10)" />
+        android:text="Chọn ảnh (tối đa 10)"
+        android:textColor="@color/black"
+        />
 
     <EditText
         android:id="@+id/titleEditText"
@@ -62,7 +64,9 @@
         android:id="@+id/getLocationButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Lấy vị trí GPS" />
+        android:text="Lấy vị trí GPS"
+        android:textColor="@color/black"
+        />
 
     <EditText
         android:id="@+id/tagsEditText"
@@ -74,13 +78,17 @@
         android:id="@+id/previewButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Xem trước" />
+        android:text="Xem trước"
+        android:textColor="@color/black"
+        />
 
     <Button
         android:id="@+id/saveBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Lưu" />
+        android:text="Lưu"
+        android:textColor="@color/black"
+        />
 
     <ProgressBar
         android:id="@+id/progressBar"
