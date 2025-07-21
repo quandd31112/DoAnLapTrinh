@@ -9,12 +9,13 @@ public class ItemModel {
     private List<String> tags;
     private String price;
     private String userId;
-    private String imageUrl;             // nếu dùng 1 ảnh
-    private List<String> imageUrls;      // nếu có danh sách ảnh
-    private String status;               // Available, Sold,...
+    private String imageUrl;
+    private List<String> imageUrls;
+    private String status;
     private Double latitude;
     private Double longitude;
     private long timestamp;
+    private Boolean isNegotiable; // ← Đổi từ boolean sang Boolean
 
     public ItemModel() {
         // Bắt buộc để Firestore deserialize
@@ -56,15 +57,12 @@ public class ItemModel {
 
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
-    // Thêm vào cuối class trước dấu đóng }
-    private Boolean negotiable;
 
-    public Boolean isNegotiable() {
-        return negotiable != null ? negotiable : false;
+    public Boolean getIsNegotiable() {
+        return isNegotiable != null ? isNegotiable : false;
     }
 
-    public void setNegotiable(Boolean negotiable) {
-        this.negotiable = negotiable;
+    public void setIsNegotiable(Boolean isNegotiable) {
+        this.isNegotiable = isNegotiable;
     }
-
 }

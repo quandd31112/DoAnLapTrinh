@@ -9,11 +9,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -35,7 +31,8 @@ import ddtradeup.ddtradeup2.R;
 public class AddItemFragment extends Fragment {
     private EditText itemTitleEditText, itemDescriptionEditText, itemTagsEditText, itemPriceEditText, latitudeEditText, longitudeEditText;
     private ImageView itemImageView;
-    private Button addItemButton, selectImageButton, previewButton;
+    private Button addItemButton, selectImageButton, previewButton, getLocationButton;
+    private CheckBox checkboxNegotiable;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private Uri imageUri;
@@ -58,6 +55,8 @@ public class AddItemFragment extends Fragment {
         previewButton = view.findViewById(R.id.previewButton);
         latitudeEditText = view.findViewById(R.id.latitudeEditText);
         longitudeEditText = view.findViewById(R.id.longitudeEditText);
+        getLocationButton = view.findViewById(R.id.getLocationButton);
+        checkboxNegotiable = view.findViewById(R.id.checkboxNegotiable);
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         locationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
@@ -72,7 +71,27 @@ public class AddItemFragment extends Fragment {
         selectImageButton.setOnClickListener(v -> selectImage());
         addItemButton.setOnClickListener(v -> addItem());
         previewButton.setOnClickListener(v -> showPreview());
+        getLocationButton.setOnClickListener(v -> fetchLocation());
         return view;
+    }
+
+    private void fetchLocation() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
+            return;
+        }
+        locationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                latitudeEditText.setText(String.valueOf(latitude));
+                longitudeEditText.setText(String.valueOf(longitude));
+            } else {
+                Toast.makeText(requireContext(), "Không lấy được vị trí. Hãy thử lại.", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(requireContext(), "Lỗi vị trí: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void selectImage() {
@@ -99,23 +118,9 @@ public class AddItemFragment extends Fragment {
             latitude = Double.parseDouble(latitudeEditText.getText().toString());
             longitude = Double.parseDouble(longitudeEditText.getText().toString());
             uploadImage(title, description, tags, price, userId);
-        } else if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(requireContext(), "Không có quyền vị trí, nhập tọa độ thủ công!", Toast.LENGTH_SHORT).show();
-            uploadImage(title, description, tags, price, userId);
         } else {
-            locationClient.getLastLocation()
-                    .addOnSuccessListener(location -> {
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                        }
-                        uploadImage(title, description, tags, price, userId);
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(requireContext(), "Lỗi lấy vị trí: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        uploadImage(title, description, tags, price, userId);
-                    });
+            fetchLocation();
+            uploadImage(title, description, tags, price, userId);
         }
     }
 
@@ -155,12 +160,11 @@ public class AddItemFragment extends Fragment {
             }
 
             @Override
-            public void onProgress(String requestId, long bytes, long totalBytes) {
-            }
+            public void onProgress(String requestId, long bytes, long totalBytes) {}
 
             @Override
             public void onSuccess(String requestId, Map resultData) {
-                imageUrl = (String) resultData.get("secure_url"); // luôn là https://
+                imageUrl = (String) resultData.get("secure_url");
                 saveItemToFirestore(title, description, tags, price, userId, imageUrl);
             }
 
@@ -171,8 +175,7 @@ public class AddItemFragment extends Fragment {
             }
 
             @Override
-            public void onReschedule(String requestId, com.cloudinary.android.callback.ErrorInfo error) {
-            }
+            public void onReschedule(String requestId, com.cloudinary.android.callback.ErrorInfo error) {}
         }).dispatch();
     }
 
@@ -185,7 +188,9 @@ public class AddItemFragment extends Fragment {
         item.put("timestamp", System.currentTimeMillis());
         item.put("price", price);
         item.put("imageUrl", imageUrl);
-        item.put("status", "Available"); // Thêm trạng thái mặc định
+        item.put("status", "Available");
+        item.put("isNegotiable", checkboxNegotiable.isChecked());
+
         if (latitude != null && longitude != null) {
             item.put("latitude", latitude);
             item.put("longitude", longitude);
@@ -202,6 +207,7 @@ public class AddItemFragment extends Fragment {
                     latitudeEditText.setText("");
                     longitudeEditText.setText("");
                     itemImageView.setImageResource(0);
+                    checkboxNegotiable.setChecked(false);
                     addItemButton.setEnabled(true);
                 })
                 .addOnFailureListener(e -> {

@@ -8,7 +8,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class OffersAdapter extends RecyclerView.Adapter<OffersAdapter.ViewHolder> {
     private Context context;
@@ -31,36 +34,37 @@ public class OffersAdapter extends RecyclerView.Adapter<OffersAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull OffersAdapter.ViewHolder holder, int position) {
         OfferModel offer = offerList.get(position);
-        holder.offerPrice.setText("Giá: " + offer.getPrice());
+
+        String formattedPrice = NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(offer.getPrice());
+        holder.offerPrice.setText("Đề nghị: " + formattedPrice);
         holder.offerStatus.setText("Trạng thái: " + offer.getStatus());
 
-        if (currentUserId.equals(offer.getSellerId())) {
-            holder.btnAccept.setVisibility(View.VISIBLE);
-            holder.btnReject.setVisibility(View.VISIBLE);
-            holder.btnCounter.setVisibility(View.VISIBLE);
-        } else {
-            holder.btnAccept.setVisibility(View.GONE);
-            holder.btnReject.setVisibility(View.GONE);
-            holder.btnCounter.setVisibility(View.GONE);
-        }
+        boolean isSeller = currentUserId.equals(offer.getSellerId());
+        boolean isPending = "pending".equals(offer.getStatus());
+
+        holder.btnAccept.setVisibility(isSeller && isPending ? View.VISIBLE : View.GONE);
+        holder.btnReject.setVisibility(isSeller && isPending ? View.VISIBLE : View.GONE);
+        holder.btnCounter.setVisibility(isSeller && isPending ? View.VISIBLE : View.GONE);
 
         holder.btnAccept.setOnClickListener(v -> {
             updateStatus(offer, "accepted", position);
-            FirebaseFirestore.getInstance().collection("items").document(offer.getItemId())
+            FirebaseFirestore.getInstance().collection("items")
+                    .document(offer.getItemId())
                     .update("status", "Sold");
         });
+
         holder.btnReject.setOnClickListener(v -> updateStatus(offer, "rejected", position));
         holder.btnCounter.setOnClickListener(v -> showCounterOfferDialog(offer, position));
     }
 
     private void updateStatus(OfferModel offer, String status, int position) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("offers").document(offer.getId())
+        FirebaseFirestore.getInstance().collection("offers")
+                .document(offer.getId())
                 .update("status", status)
                 .addOnSuccessListener(aVoid -> {
                     offer.setStatus(status);
                     notifyItemChanged(position);
-                    Toast.makeText(context, "Đã cập nhật!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Đã " + (status.equals("accepted") ? "chấp nhận" : "từ chối"), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -83,7 +87,8 @@ public class OffersAdapter extends RecyclerView.Adapter<OffersAdapter.ViewHolder
                     OfferModel counterOffer = new OfferModel(
                             newOfferId, offer.getItemId(), offer.getBuyerId(), offer.getSellerId(),
                             price, "pending", System.currentTimeMillis());
-                    FirebaseFirestore.getInstance().collection("offers").document(newOfferId)
+                    FirebaseFirestore.getInstance().collection("offers")
+                            .document(newOfferId)
                             .set(counterOffer)
                             .addOnSuccessListener(aVoid -> {
                                 updateStatus(offer, "rejected", position);

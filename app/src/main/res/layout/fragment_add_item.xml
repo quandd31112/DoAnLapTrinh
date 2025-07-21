@@ -2,102 +2,136 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:showDividers="middle"
+        android:dividerPadding="8dp"
+        android:divider="?android:attr/dividerVertical">
 
-        <!-- Title -->
+        <!-- Ảnh sản phẩm -->
+        <ImageView
+            android:id="@+id/itemImageView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/image_border"
+            android:contentDescription="Ảnh sản phẩm" />
+
+        <Button
+            android:id="@+id/selectImageButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chọn ảnh (tối đa 10)"
+            android:textColor="@color/black"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/btn_white_border" />
+
+        <!-- Tiêu đề -->
         <EditText
             android:id="@+id/itemTitleEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Tiêu đề sản phẩm"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/edittext_bg"
+            android:layout_marginBottom="12dp" />
 
-        <!-- Description -->
+        <!-- Mô tả -->
         <EditText
             android:id="@+id/itemDescriptionEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Mô tả sản phẩm"
             android:minLines="3"
+            android:gravity="top"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/edittext_bg"
+            android:layout_marginBottom="12dp" />
 
         <!-- Tags -->
         <EditText
             android:id="@+id/itemTagsEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Tag (cách nhau bởi dấu phẩy)"
+            android:hint="Tags (ngăn cách bằng dấu phẩy)"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/edittext_bg"
+            android:layout_marginBottom="12dp" />
 
-        <!-- Price -->
+        <!-- Giá -->
         <EditText
             android:id="@+id/itemPriceEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Giá (VND)"
+            android:hint="Giá (VNĐ)"
             android:inputType="numberDecimal"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/edittext_bg"
+            android:layout_marginBottom="12dp" />
 
-        <!-- Latitude -->
+        <!-- Vĩ độ -->
         <EditText
             android:id="@+id/latitudeEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Latitude"
+            android:hint="Vĩ độ (Latitude)"
             android:inputType="numberDecimal"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/edittext_bg"
+            android:layout_marginBottom="12dp" />
 
-        <!-- Longitude -->
+        <!-- Kinh độ -->
         <EditText
             android:id="@+id/longitudeEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Longitude"
+            android:hint="Kinh độ (Longitude)"
             android:inputType="numberDecimal"
             android:padding="12dp"
+            android:background="@drawable/edittext_bg"
             android:layout_marginBottom="12dp" />
 
-        <!-- Image -->
-        <ImageView
-            android:id="@+id/itemImageView"
+        <!-- Nút lấy vị trí GPS -->
+        <Button
+            android:id="@+id/getLocationButton"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="Ảnh sản phẩm"
-            android:layout_marginBottom="12dp" />
+            android:layout_height="wrap_content"
+            android:text="Lấy vị trí GPS"
+            android:textColor="@color/black"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@android:color/darker_gray" />
 
-        <!-- Buttons -->
+        <!-- Hành động -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginBottom="8dp">
-
-            <Button
-                android:id="@+id/selectImageButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Chọn ảnh"
-                android:textColor="@color/black"/>
+            android:layout_marginBottom="12dp">
 
             <Button
                 android:id="@+id/previewButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Xem trước"
-                android:layout_marginStart="8dp"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black"
+                android:backgroundTint="@color/white"
+                android:background="@drawable/btn_white_border" />
+            <CheckBox
+                android:id="@+id/checkboxNegotiable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cho phép đề nghị giá"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/black" />
+
         </LinearLayout>
 
         <Button
@@ -106,7 +140,8 @@
             android:layout_height="wrap_content"
             android:text="Đăng sản phẩm"
             android:textAllCaps="false"
-            android:textColor="@color/black"
-            />
+            android:textColor="@color/white"
+            android:backgroundTint="@color/black"
+            android:layout_marginBottom="24dp" />
     </LinearLayout>
 </ScrollView>

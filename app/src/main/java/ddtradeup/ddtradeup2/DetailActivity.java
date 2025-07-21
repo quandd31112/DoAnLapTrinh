@@ -3,15 +3,18 @@ package ddtradeup.ddtradeup2;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
@@ -23,7 +26,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private ImageView imgItem;
     private TextView tvTitle, tvDescription, tvPrice, tvMyOfferStatus, tvStatus;
-    private Button   btnOffer, btnRate, btnBuyNow, btnEditItem;
+    private Button btnOffer, btnRate, btnBuyNow, btnEditItem;
     private RecyclerView recyclerOffers;
 
     private ItemModel item;
@@ -32,7 +35,7 @@ public class DetailActivity extends AppCompatActivity {
     private final ArrayList<OfferModel> offerList = new ArrayList<>();
     private OffersAdapter offersAdapter;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final FirebaseAuth      mAuth = FirebaseAuth.getInstance();
+    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     private ActivityResultLauncher<Intent> payLauncher;
 
@@ -54,21 +57,21 @@ public class DetailActivity extends AppCompatActivity {
         recyclerOffers  = findViewById(R.id.recyclerOffers);
 
         currentUserId = mAuth.getCurrentUser().getUid();
-        itemId        = getIntent().getStringExtra("itemId");
+        itemId = getIntent().getStringExtra("itemId");
         if (itemId == null) { finish(); return; }
 
         offersAdapter = new OffersAdapter(this, offerList, currentUserId);
         recyclerOffers.setLayoutManager(new LinearLayoutManager(this));
         recyclerOffers.setAdapter(offersAdapter);
 
-        btnOffer .setOnClickListener(v -> showOfferDialog());
-        btnRate  .setOnClickListener(v -> showRatingDialog());
+        btnOffer.setOnClickListener(v -> showOfferDialog());
+        btnRate.setOnClickListener(v -> showRatingDialog());
 
         payLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 r -> {
                     if (r.getResultCode() == RESULT_OK) {
-                        if (r.getData()!=null && r.getData().getBooleanExtra("paid",false))
+                        if (r.getData() != null && r.getData().getBooleanExtra("paid", false))
                             commitBuyNow();
                     }
                 });
@@ -94,6 +97,11 @@ public class DetailActivity extends AppCompatActivity {
             item.setId(doc.getId());
             sellerId = item.getUserId();
 
+            Log.d("DEBUG", "itemId=" + item.getId() +
+                    ", currentUser=" + currentUserId +
+                    ", sellerId=" + sellerId +
+                    ", isNegotiable=" + item.getIsNegotiable());
+
             tvTitle.setText(item.getTitle());
             tvDescription.setText(item.getDescription());
             tvPrice.setText(String.format("\u20ab%,.0f", Double.parseDouble(item.getPrice())));
@@ -103,15 +111,15 @@ public class DetailActivity extends AppCompatActivity {
             else
                 tvStatus.setVisibility(View.GONE);
 
-            String url = (item.getImageUrls()!=null && !item.getImageUrls().isEmpty())
+            String url = (item.getImageUrls() != null && !item.getImageUrls().isEmpty())
                     ? item.getImageUrls().get(0) : item.getImageUrl();
-            if (url!=null && url.startsWith("http://")) url = url.replace("http://","https://");
-            Glide.with(this).load(url!=null?url:R.drawable.placeholder)
+            if (url != null && url.startsWith("http://")) url = url.replace("http://", "https://");
+            Glide.with(this).load(url != null ? url : R.drawable.placeholder)
                     .placeholder(R.drawable.placeholder).into(imgItem);
 
             if (currentUserId.equals(sellerId)) {
                 btnOffer.setVisibility(View.GONE);
-                btnRate .setVisibility(View.GONE);
+                btnRate.setVisibility(View.GONE);
                 btnBuyNow.setVisibility(View.GONE);
                 tvMyOfferStatus.setVisibility(View.GONE);
                 btnEditItem.setVisibility(View.VISIBLE);
@@ -122,7 +130,12 @@ public class DetailActivity extends AppCompatActivity {
                 });
                 loadOffersForSeller();
             } else {
-                btnOffer .setVisibility(Boolean.TRUE.equals(item.isNegotiable()) ? View.VISIBLE : View.GONE);
+                boolean isNegotiable = Boolean.TRUE.equals(item.getIsNegotiable());
+
+                Log.d("DEBUG", "Negotiable flag: " + isNegotiable);
+                btnOffer.setVisibility(isNegotiable ? View.VISIBLE : View.GONE);
+                btnOffer.setEnabled(isNegotiable);
+
                 btnBuyNow.setVisibility(
                         item.getStatus() == null || item.getStatus().equalsIgnoreCase("available")
                                 ? View.VISIBLE : View.GONE
@@ -134,7 +147,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void commitBuyNow() {
-        HashMap<String,Object> tx = new HashMap<>();
+        HashMap<String, Object> tx = new HashMap<>();
         tx.put("itemId", itemId);
         tx.put("buyerId", currentUserId);
         tx.put("sellerId", sellerId);
@@ -143,43 +156,45 @@ public class DetailActivity extends AppCompatActivity {
         tx.put("price", item.getPrice());
 
         db.collection("transactions").add(tx).addOnSuccessListener(r ->
-                db.collection("items").document(itemId).update("status","sold")
+                db.collection("items").document(itemId).update("status", "sold")
                         .addOnSuccessListener(u -> {
-                            Toast.makeText(this,"Purchase successful",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Purchase successful", Toast.LENGTH_SHORT).show();
                             btnBuyNow.setEnabled(false);
                             btnBuyNow.setText("Purchased");
                             btnBuyNow.setVisibility(View.GONE);
                         })
         ).addOnFailureListener(e ->
-                Toast.makeText(this,"Error: "+e.getMessage(),Toast.LENGTH_SHORT).show());
+                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void showOfferDialog() {
         EditText edt = new EditText(this);
-        edt.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        edt.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         edt.setHint("Enter your offer");
         new AlertDialog.Builder(this)
                 .setTitle("Submit Offer")
                 .setView(edt)
-                .setPositiveButton("Send",(d,w)->{
-                    String v=edt.getText().toString();
-                    if(v.isEmpty()){ Toast.makeText(this,"Enter amount!",Toast.LENGTH_SHORT).show(); return; }
+                .setPositiveButton("Send", (d, w) -> {
+                    String v = edt.getText().toString();
+                    if (v.isEmpty()) {
+                        Toast.makeText(this, "Enter amount!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     sendOffer(Double.parseDouble(v));
                 })
-                .setNegativeButton("Cancel",null).show();
+                .setNegativeButton("Cancel", null).show();
     }
 
     private void sendOffer(double price) {
         String offerId = db.collection("offers").document().getId();
-        OfferModel o = new OfferModel(offerId,itemId,currentUserId,sellerId,price,"pending",
-                System.currentTimeMillis());
+        OfferModel o = new OfferModel(offerId, itemId, currentUserId, sellerId, price, "pending", System.currentTimeMillis());
         db.collection("offers").document(offerId).set(o)
                 .addOnSuccessListener(v -> {
-                    Toast.makeText(this,"Offer sent!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Offer sent!", Toast.LENGTH_SHORT).show();
                     loadMyOffers();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this,"Failed: "+e.getMessage(),Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void loadMyOffers() {
@@ -191,31 +206,31 @@ public class DetailActivity extends AppCompatActivity {
                 .addOnSuccessListener(snap -> {
                     boolean pending = false;
                     OfferModel last = null;
-                    for(DocumentSnapshot d:snap){
-                        OfferModel o=d.toObject(OfferModel.class);
-                        if(last==null) last=o;
-                        if("pending".equals(o.getStatus())) pending=true;
+                    for (DocumentSnapshot d : snap) {
+                        OfferModel o = d.toObject(OfferModel.class);
+                        if (last == null) last = o;
+                        if ("pending".equals(o.getStatus())) pending = true;
                     }
-                    if(last!=null){
+                    if (last != null) {
                         tvMyOfferStatus.setVisibility(View.VISIBLE);
-                        tvMyOfferStatus.setText("Offer: "+last.getStatus()+
+                        tvMyOfferStatus.setText("Offer: " + last.getStatus() +
                                 " (₫" + last.getPrice() + ")");
-                        btnRate.setVisibility("accepted".equals(last.getStatus())?View.VISIBLE:View.GONE);
-                    }else{
+                        btnRate.setVisibility("accepted".equals(last.getStatus()) ? View.VISIBLE : View.GONE);
+                    } else {
                         tvMyOfferStatus.setVisibility(View.GONE);
                         btnRate.setVisibility(View.GONE);
                     }
-                    btnOffer.setEnabled(!pending && Boolean.TRUE.equals(item.isNegotiable()));
+                    btnOffer.setEnabled(!pending && Boolean.TRUE.equals(item.getIsNegotiable()));
                 });
     }
 
     private void loadOffersForSeller() {
         recyclerOffers.setVisibility(View.VISIBLE);
-        db.collection("offers").whereEqualTo("itemId",itemId).get()
+        db.collection("offers").whereEqualTo("itemId", itemId).get()
                 .addOnSuccessListener(snap -> {
                     offerList.clear();
-                    for(DocumentSnapshot d:snap){
-                        OfferModel o=d.toObject(OfferModel.class);
+                    for (DocumentSnapshot d : snap) {
+                        OfferModel o = d.toObject(OfferModel.class);
                         o.setId(d.getId());
                         offerList.add(o);
                     }
@@ -224,42 +239,47 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void showRatingDialog() {
-        View v = LayoutInflater.from(this).inflate(R.layout.dialog_rating,null);
+        View v = LayoutInflater.from(this).inflate(R.layout.dialog_rating, null);
         RatingBar rb = v.findViewById(R.id.ratingBar);
 
         new AlertDialog.Builder(this)
                 .setTitle("Rate Seller")
                 .setView(v)
-                .setPositiveButton("Submit",(d,w)->{
+                .setPositiveButton("Submit", (d, w) -> {
                     float rate = rb.getRating();
-                    if(rate==0){
-                        Toast.makeText(this,"Please select stars!",Toast.LENGTH_SHORT).show(); return;
+                    if (rate == 0) {
+                        Toast.makeText(this, "Please select stars!", Toast.LENGTH_SHORT).show();
+                        return;
                     }
                     saveRating(rate);
                 })
-                .setNegativeButton("Cancel",null).show();
+                .setNegativeButton("Cancel", null).show();
     }
 
     private void saveRating(float rating) {
-        HashMap<String,Object> r = new HashMap<>();
+        HashMap<String, Object> r = new HashMap<>();
         r.put("userId", sellerId);
         r.put("itemId", itemId);
         r.put("rating", rating);
         r.put("timestamp", System.currentTimeMillis());
         db.collection("ratings").add(r).addOnSuccessListener(v -> {
-            Toast.makeText(this,"Rated "+rating+" stars",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Rated " + rating + " stars", Toast.LENGTH_SHORT).show();
             updateUserRating();
         });
     }
 
     private void updateUserRating() {
-        db.collection("ratings").whereEqualTo("userId",sellerId).get()
+        db.collection("ratings").whereEqualTo("userId", sellerId).get()
                 .addOnSuccessListener(snap -> {
-                    double total=0; int cnt=0;
-                    for(DocumentSnapshot d:snap){ total+=d.getDouble("rating"); cnt++; }
-                    if(cnt>0){
-                        double avg = total/cnt;
-                        db.collection("users").document(sellerId).update("rating",avg);
+                    double total = 0;
+                    int cnt = 0;
+                    for (DocumentSnapshot d : snap) {
+                        total += d.getDouble("rating");
+                        cnt++;
+                    }
+                    if (cnt > 0) {
+                        double avg = total / cnt;
+                        db.collection("users").document(sellerId).update("rating", avg);
                     }
                 });
     }

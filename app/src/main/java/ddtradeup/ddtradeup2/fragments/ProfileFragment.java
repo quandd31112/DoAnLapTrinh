@@ -23,8 +23,9 @@ import ddtradeup.ddtradeup2.BuyerTransactionsActivity;
 import ddtradeup.ddtradeup2.ChatActivity;
 import ddtradeup.ddtradeup2.EditProfileActivity;
 import ddtradeup.ddtradeup2.ItemModel;
-import ddtradeup.ddtradeup2.ItemsAdapter;          // << dùng adapter mới
+import ddtradeup.ddtradeup2.ItemsAdapter;
 import ddtradeup.ddtradeup2.LoginActivity;
+import ddtradeup.ddtradeup2.OfferActivity;
 import ddtradeup.ddtradeup2.R;
 
 public class ProfileFragment extends Fragment {
@@ -52,10 +53,11 @@ public class ProfileFragment extends Fragment {
         Button btnEditProfile = view.findViewById(R.id.editProfileButton);
         Button btnHistory     = view.findViewById(R.id.historyButton);
         Button btnLogout      = view.findViewById(R.id.logoutButton);
-        Button btnChatList    = view.findViewById(R.id.chatButton);   // << mới
+        Button btnChatList    = view.findViewById(R.id.chatButton);
+        Button btnOffer       = view.findViewById(R.id.offerButton);  // ✅ thêm nút đề nghị
 
         // Adapter hiển thị “Sửa” vì đây là item của chính user (isEditable = true)
-        adapter = new ItemsAdapter(requireContext(), itemList, /*isEditable*/ true);
+        adapter = new ItemsAdapter(requireContext(), itemList, true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
@@ -69,7 +71,10 @@ public class ProfileFragment extends Fragment {
                 startActivity(new Intent(getContext(), BuyerTransactionsActivity.class)));
 
         btnChatList.setOnClickListener(v ->
-                startActivity(new Intent(getContext(), ChatActivity.class)));   // mở màn chat chính
+                startActivity(new Intent(getContext(), ChatActivity.class)));
+
+        btnOffer.setOnClickListener(v ->
+                startActivity(new Intent(getContext(), OfferActivity.class)));  // ✅ mở OfferActivity
 
         btnLogout.setOnClickListener(v -> {
             auth.signOut();
@@ -90,8 +95,6 @@ public class ProfileFragment extends Fragment {
             loadUserItems(uid);
         }
     }
-
-    /* ---------------- helper ---------------- */
 
     private void loadUserInfo(String uid) {
         db.collection("users").document(uid).get()

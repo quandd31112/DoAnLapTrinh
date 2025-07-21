@@ -97,6 +97,13 @@ public class EditItemActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        itemImageView.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Chọn ảnh"), PICK_IMAGE_REQUEST);
+        });
+
         ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
                 new String[]{"Available", "Sold", "Paused"});
         statusSpinner.setAdapter(statusAdapter);
@@ -236,5 +243,16 @@ public class EditItemActivity extends AppCompatActivity {
                     Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 })
                 .addOnCompleteListener(task -> progressBar.setVisibility(View.GONE));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            imageUris.clear();
+            imageUris.add(imageUri);
+            Glide.with(this).load(imageUri).into(itemImageView);
+        }
     }
 }

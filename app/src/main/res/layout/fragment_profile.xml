@@ -76,11 +76,25 @@
             android:textColor="@android:color/black"
             app:backgroundTint="@android:color/white"
             android:layout_marginBottom="8dp" />
+
+        <!-- Nút tin nhắn -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/chatButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tin nhắn"
+            android:textAllCaps="false"
+            app:cornerRadius="12dp"
+            android:textColor="@android:color/black"
+            app:backgroundTint="@android:color/white"
+            android:layout_marginBottom="8dp" />
+
+        <!-- ✅ Nút xem đề nghị -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/offerButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xem đề nghị"
             android:textAllCaps="false"
             app:cornerRadius="12dp"
             android:textColor="@android:color/black"

@@ -9,6 +9,7 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="colorPrimary">#FFFFFF</item>
 
+
     </style>
 
     <style name="Theme.DDTradeUp.NoActionBar">

@@ -1,98 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/itemImageView"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_gravity="center" />
-
-    <Button
-        android:id="@+id/chooseImageButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Chọn ảnh (tối đa 10)"
-        android:textColor="@color/black"
-        />
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:divider="?android:attr/dividerVertical"
+        android:showDividers="middle"
+        android:dividerPadding="8dp">
 
-    <EditText
-        android:id="@+id/titleEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Tiêu đề" />
+        <ImageView
+            android:id="@+id/itemImageView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+           />
 
-    <EditText
-        android:id="@+id/descriptionEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Mô tả" />
+        <Button
+            android:id="@+id/chooseImageButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chọn ảnh (tối đa 10)"
+            android:textColor="@color/black"/>
 
-    <EditText
-        android:id="@+id/priceEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Giá"
-        android:inputType="numberDecimal" />
+        <EditText
+            android:id="@+id/titleEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tiêu đề"/>
 
-    <Spinner
-        android:id="@+id/categorySpinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <EditText
+            android:id="@+id/descriptionEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mô tả"
+            android:minLines="3"
+            android:gravity="top"
+            android:inputType="textMultiLine"/>
 
-    <Spinner
-        android:id="@+id/conditionSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <EditText
+            android:id="@+id/priceEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Giá"
+            android:inputType="numberDecimal"/>
 
-    <Spinner
-        android:id="@+id/sSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <Spinner
+            android:id="@+id/categorySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
-    <EditText
-        android:id="@+id/locationEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Vị trí (VD: lat,lon)" />
+        <Spinner
+            android:id="@+id/conditionSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
-    <Button
-        android:id="@+id/getLocationButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Lấy vị trí GPS"
-        android:textColor="@color/black"
-        />
+        <Spinner
+            android:id="@+id/sSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
-    <EditText
-        android:id="@+id/tagsEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Tag (cách nhau bằng dấu phẩy)" />
+        <EditText
+            android:id="@+id/locationEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Vị trí (VD: lat,lon)"/>
 
-    <Button
-        android:id="@+id/previewButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Xem trước"
-        android:textColor="@color/black"
-        />
+        <Button
+            android:id="@+id/getLocationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lấy vị trí GPS"
+            android:textColor="@color/black"/>
 
-    <Button
-        android:id="@+id/saveBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Lưu"
-        android:textColor="@color/black"
-        />
+        <EditText
+            android:id="@+id/tagsEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tag (cách nhau bằng dấu phẩy)"/>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
-</LinearLayout>
+        <Button
+            android:id="@+id/previewButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xem trước"
+            android:textColor="@color/black"/>
+
+        <Button
+            android:id="@+id/saveBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lưu"
+            android:textColor="@color/black"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+    </LinearLayout>
+</ScrollView>
