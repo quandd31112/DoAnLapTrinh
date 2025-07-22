@@ -186,9 +186,9 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void sendOffer(double price) {
-        String offerId = db.collection("offers").document().getId();
+        String offerId = db.collection("offer").document().getId();
         OfferModel o = new OfferModel(offerId, itemId, currentUserId, sellerId, price, "pending", System.currentTimeMillis());
-        db.collection("offers").document(offerId).set(o)
+        db.collection("offer").document(offerId).set(o)
                 .addOnSuccessListener(v -> {
                     Toast.makeText(this, "Offer sent!", Toast.LENGTH_SHORT).show();
                     loadMyOffers();
@@ -198,7 +198,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void loadMyOffers() {
-        db.collection("offers")
+        db.collection("offer")
                 .whereEqualTo("itemId", itemId)
                 .whereEqualTo("buyerId", currentUserId)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -226,7 +226,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private void loadOffersForSeller() {
         recyclerOffers.setVisibility(View.VISIBLE);
-        db.collection("offers").whereEqualTo("itemId", itemId).get()
+        db.collection("offer").whereEqualTo("itemId", itemId).get()
                 .addOnSuccessListener(snap -> {
                     offerList.clear();
                     for (DocumentSnapshot d : snap) {

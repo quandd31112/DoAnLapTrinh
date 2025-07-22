@@ -107,6 +107,7 @@ public class ProfileFragment extends Fragment {
     private void loadUserItems(String uid) {
         db.collection("items")
                 .whereEqualTo("userId", uid)
+                .whereNotEqualTo("status", "sold")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(qs -> {

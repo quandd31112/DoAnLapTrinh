@@ -58,15 +58,37 @@ public class OffersAdapter extends RecyclerView.Adapter<OffersAdapter.ViewHolder
     }
 
     private void updateStatus(OfferModel offer, String status, int position) {
-        FirebaseFirestore.getInstance().collection("offers")
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("offer")
                 .document(offer.getId())
                 .update("status", status)
                 .addOnSuccessListener(aVoid -> {
-                    offer.setStatus(status);
-                    notifyItemChanged(position);
                     Toast.makeText(context, "Đã " + (status.equals("accepted") ? "chấp nhận" : "từ chối"), Toast.LENGTH_SHORT).show();
-                });
+
+                    // Nếu CHẤP NHẬN thì cập nhật status của sản phẩm thành "sold"
+                    if ("accepted".equals(status)) {
+                        db.collection("items").document(offer.getItemId())
+                                .update("status", "sold")
+                                .addOnSuccessListener(unused -> {
+                                    offer.setStatus("accepted");
+                                    notifyItemChanged(position);
+                                });
+                    }
+
+                    // Nếu TỪ CHỐI thì xóa offer khỏi danh sách hiện tại
+                    if ("rejected".equals(status)) {
+                        offerList.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, offerList.size());
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(context, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
+
+
 
     private void showCounterOfferDialog(OfferModel offer, int position) {
         EditText edt = new EditText(context);
@@ -83,11 +105,11 @@ public class OffersAdapter extends RecyclerView.Adapter<OffersAdapter.ViewHolder
                         return;
                     }
                     double price = Double.parseDouble(input);
-                    String newOfferId = FirebaseFirestore.getInstance().collection("offers").document().getId();
+                    String newOfferId = FirebaseFirestore.getInstance().collection("offer").document().getId();
                     OfferModel counterOffer = new OfferModel(
                             newOfferId, offer.getItemId(), offer.getBuyerId(), offer.getSellerId(),
                             price, "pending", System.currentTimeMillis());
-                    FirebaseFirestore.getInstance().collection("offers")
+                    FirebaseFirestore.getInstance().collection("offer")
                             .document(newOfferId)
                             .set(counterOffer)
                             .addOnSuccessListener(aVoid -> {

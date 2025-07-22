@@ -35,7 +35,7 @@ public class EditItemActivity extends AppCompatActivity {
     private ImageView itemImageView;
     private EditText titleEditText, descriptionEditText, priceEditText, locationEditText, tagsEditText;
     private ProgressBar progressBar;
-    private Button previewButton;
+    private Button previewButton, chooseImageButton;
     private String itemId;
 
     private ArrayList<Uri> imageUris = new ArrayList<>();
@@ -63,6 +63,7 @@ public class EditItemActivity extends AppCompatActivity {
         tagsEditText = findViewById(R.id.tagsEditText);
         previewButton = findViewById(R.id.previewButton);
         progressBar = findViewById(R.id.progressBar);
+        chooseImageButton = findViewById(R.id.chooseImageButton);
 
         Button saveButton = findViewById(R.id.saveBtn);
         Button getLocationButton = findViewById(R.id.getLocationButton);
@@ -71,12 +72,22 @@ public class EditItemActivity extends AppCompatActivity {
         itemId = getIntent().getStringExtra("itemId");
         loadItemData();
 
+        chooseImageButton.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Chọn ảnh"), PICK_IMAGE_REQUEST);
+        });
+
         getLocationButton.setOnClickListener(v -> getGpsLocation());
+
         saveButton.setOnClickListener(v -> {
-            if (imageUris.isEmpty()) {
-                Toast.makeText(this, "Vui lòng chọn ít nhất 1 ảnh!", Toast.LENGTH_SHORT).show();
-            } else {
+            if (imageUris.isEmpty() && !imageUrls.isEmpty()) {
+                saveToFirestore();
+            } else if (!imageUris.isEmpty()) {
                 uploadImagesToCloudinary();
+            } else {
+                Toast.makeText(this, "Vui lòng chọn ít nhất 1 ảnh!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -95,13 +106,6 @@ public class EditItemActivity extends AppCompatActivity {
             intent.putExtra("imageUri", imageUris.get(0).toString());
             intent.putExtra("tags", tagsEditText.getText().toString());
             startActivity(intent);
-        });
-
-        itemImageView.setOnClickListener(v -> {
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Chọn ảnh"), PICK_IMAGE_REQUEST);
         });
 
         ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
@@ -125,8 +129,6 @@ public class EditItemActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         titleEditText.setText(documentSnapshot.getString("title"));
                         descriptionEditText.setText(documentSnapshot.getString("description"));
-
-                        // FIX CRASH: handle price safely
                         Object priceObj = documentSnapshot.get("price");
                         double price = 0;
                         if (priceObj instanceof Number) {
@@ -134,12 +136,9 @@ public class EditItemActivity extends AppCompatActivity {
                         } else if (priceObj instanceof String) {
                             try {
                                 price = Double.parseDouble((String) priceObj);
-                            } catch (NumberFormatException e) {
-                                price = 0;
-                            }
+                            } catch (NumberFormatException ignored) {}
                         }
                         priceEditText.setText(String.valueOf(price));
-
                         locationEditText.setText(documentSnapshot.getString("location"));
                         selectedCategory = documentSnapshot.getString("category");
                         selectedCondition = documentSnapshot.getString("condition");
@@ -190,12 +189,10 @@ public class EditItemActivity extends AppCompatActivity {
                                 saveToFirestore();
                             }
                         }
-
                         @Override public void onError(String requestId, ErrorInfo error) {
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(EditItemActivity.this, "Lỗi upload ảnh: " + error.getDescription(), Toast.LENGTH_SHORT).show();
                         }
-
                         @Override public void onReschedule(String requestId, ErrorInfo error) {}
                     }).dispatch();
         }
@@ -208,7 +205,7 @@ public class EditItemActivity extends AppCompatActivity {
         String tags = tagsEditText.getText().toString().trim();
 
         if (TextUtils.isEmpty(title) || TextUtils.isEmpty(description) || TextUtils.isEmpty(priceStr)) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Vui lòng nhập đủ thông tin!", Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
             return;
         }

@@ -1,6 +1,7 @@
 package ddtradeup.ddtradeup2;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -42,14 +43,18 @@ public class OfferActivity extends AppCompatActivity {
     private void loadOffers() {
         progressBar.setVisibility(View.VISIBLE);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("offers")
+
+        db.collection("offer")
+                .whereEqualTo("sellerId", currentUserId)
+                .whereEqualTo("status", "pending") // Chỉ load offer đang chờ xác nhận
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     offerList.clear();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         OfferModel offer = doc.toObject(OfferModel.class);
-                        if (offer != null && (offer.getBuyerId().equals(currentUserId) || offer.getSellerId().equals(currentUserId))) {
+                        if (offer != null) {
+                            offer.setId(doc.getId());
                             offerList.add(offer);
                         }
                     }
@@ -57,8 +62,10 @@ public class OfferActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Lỗi khi tải đề nghị: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("FIRESTORE_ERROR", "Lỗi khi tải đề nghị: ", e);
+                    Toast.makeText(this, "Lỗi khi tải đề nghị", Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
                 });
+
     }
 }
